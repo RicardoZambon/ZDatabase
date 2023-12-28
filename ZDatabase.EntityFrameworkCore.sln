@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZDatabase.EntityFrameworkCore", "ZDatabase.EntityFrameworkCore\ZDatabase.EntityFrameworkCore.csproj", "{7B1C0224-2821-4901-8286-C3081E156E69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZDatabase.EntityFrameworkCore.Audit", "ZDatabase.EntityFrameworkCore.Audit\ZDatabase.EntityFrameworkCore.Audit.csproj", "{5A479037-4CAE-46F6-AC42-F66B7A03EC50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZDatabase.EntityFrameworkCore.Common", "ZDatabase.EntityFrameworkCore.Common\ZDatabase.EntityFrameworkCore.Common.csproj", "{D874DF42-FC95-47C8-BA4F-71878EFAD643}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B1C0224-2821-4901-8286-C3081E156E69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B1C0224-2821-4901-8286-C3081E156E69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B1C0224-2821-4901-8286-C3081E156E69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B1C0224-2821-4901-8286-C3081E156E69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A479037-4CAE-46F6-AC42-F66B7A03EC50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A479037-4CAE-46F6-AC42-F66B7A03EC50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A479037-4CAE-46F6-AC42-F66B7A03EC50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A479037-4CAE-46F6-AC42-F66B7A03EC50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D874DF42-FC95-47C8-BA4F-71878EFAD643}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D874DF42-FC95-47C8-BA4F-71878EFAD643}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D874DF42-FC95-47C8-BA4F-71878EFAD643}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D874DF42-FC95-47C8-BA4F-71878EFAD643}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2218C609-DFBF-4F92-A695-AB7E37B5C040}
+	EndGlobalSection
+EndGlobal
