@@ -20,7 +20,18 @@ namespace ZDatabase.EntityFrameworkCore.Common.ValueGenerators
         /// <inheritdoc />
         public override TUserKey Next(EntityEntry entry)
         {
-            return entry.Context.GetService<ICurrentUserProvider<TUserKey>>()?.CurrentUserID ?? default;
+            try
+            {
+                return entry.Context.GetService<ICurrentUserProvider<TUserKey>>().CurrentUserID ?? default;
+            }
+            catch (InvalidOperationException)
+            {
+                return default;
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }

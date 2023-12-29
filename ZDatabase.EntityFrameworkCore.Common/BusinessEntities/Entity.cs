@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.ComponentModel.DataAnnotations;
 using ZDatabase.EntityFrameworkCore.Common.Interfaces;
 
@@ -55,7 +56,8 @@ namespace ZDatabase.EntityFrameworkCore.Common.BusinessEntities
             builder.HasQueryFilter(x => !x.IsDeleted);
 
             // IsDeleted
-            builder.Property(x => x.IsDeleted);
+            builder.Property(x => x.IsDeleted)
+                .HasDefaultValue(false);
         }
     }
 }
