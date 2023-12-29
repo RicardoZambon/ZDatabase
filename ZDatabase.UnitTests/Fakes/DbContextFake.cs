@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Proxies.Internal;
 
 namespace ZDatabase.UnitTests.Fakes
 {
@@ -24,6 +26,12 @@ namespace ZDatabase.UnitTests.Fakes
             optionsBuilder
                 .UseInMemoryDatabase(nameof(DbContextFake))
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            ProxiesOptionsExtension extension = new ProxiesOptionsExtension();
+            extension = extension.WithLazyLoading(true);
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
     }
 }
