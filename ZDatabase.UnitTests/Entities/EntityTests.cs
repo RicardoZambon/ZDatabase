@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using ZDatabase.Entities;
 using ZDatabase.Interfaces;
 using ZDatabase.UnitTests.Factories;
-using ZDatabase.UnitTests.Fakes;
+using ZDatabase.UnitTests.Fakes.EntitiesFake;
 
 namespace ZDatabase.UnitTests.Entities
 {

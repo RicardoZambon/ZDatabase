@@ -63,13 +63,9 @@ namespace ZDatabase.ExtensionMethods
         internal static bool HasValueModified(this PropertyEntry property)
         {
             return property.IsModified
-            && (
-                property.OriginalValue != null && property.CurrentValue == null
-                || property.OriginalValue == null && property.CurrentValue != null
-                || (
-                    property.OriginalValue != null && property.CurrentValue != null
-                    && !property.OriginalValue.Equals(property.CurrentValue)
-                )
+            && ((property.OriginalValue != null && property.CurrentValue == null)
+                || (property.OriginalValue == null && property.CurrentValue != null)
+                || (property.OriginalValue != null && property.CurrentValue != null && !property.OriginalValue.Equals(property.CurrentValue))
             );
         }
 

@@ -4,7 +4,7 @@ using NSubstitute.ExceptionExtensions;
 using ZDatabase.Interfaces;
 using ZDatabase.Services.Interfaces;
 using ZDatabase.UnitTests.Factories;
-using ZDatabase.UnitTests.Fakes;
+using ZDatabase.UnitTests.Fakes.EntitiesFake;
 using ZDatabase.ValueGenerators;
 
 namespace ZDatabase.UnitTests.ValueGenerators

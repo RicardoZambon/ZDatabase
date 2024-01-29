@@ -1,6 +1,7 @@
 ﻿using ZDatabase.Entities.Audit;
 using ZDatabase.Interfaces;
 using ZDatabase.Services;
+using ZDatabase.UnitTests.Fakes.EntitiesFake;
 
 namespace ZDatabase.UnitTests.Fakes.ServicesFake
 {

@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ZDatabase.Entities;
-using ZDatabase.UnitTests.Fakes.EntitiesFake;
 
-namespace ZDatabase.UnitTests.Fakes
+namespace ZDatabase.UnitTests.Fakes.EntitiesFake
 {
     internal class AuditableEntityFake : AuditableEntity<UsersEntityFake, long>
     {
