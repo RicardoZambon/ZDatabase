@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using ZDatabase.Attributes;
 using ZDatabase.Entities;
 
 namespace ZDatabase.UnitTests.Fakes.EntitiesFake
@@ -7,6 +8,7 @@ namespace ZDatabase.UnitTests.Fakes.EntitiesFake
     {
         public Guid RandomGuid { get; set; }
 
+        [AuditableRelation]
         public virtual ICollection<ChildAuditableEntityFake> Children { get; set; } = new List<ChildAuditableEntityFake>();
     }
 
