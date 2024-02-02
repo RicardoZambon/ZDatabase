@@ -1,47 +1,45 @@
 name: Release
-
 on:
+  workflow_dispatch:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-jobs:
-  get-next-version:
-    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
+    branches:
+      - main
+env:
+  PROJECT_PATH: 'ZDatabase/ZDatabase.csproj'
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
+  NUGET_PUSH_URL: ${{ secrets.NUGET_PUSH_URL }}
+  NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
 
+jobs:
   release:
-    name: Display the generated versioning.
+    name: Release
     runs-on: ubuntu-latest
-    if: needs.get-next-version.outputs.new-release-published == 'true'
-    needs:
-      - get-next-version
     steps:
-      - run: echo ${{ needs.get-next-version.outputs.new-release-version }}
-  
-  #semantic-release:
-  #  name: Create the Package Release
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #  - uses: actions/checkout@v3 # Need the full commit history for conventional commit
-  #  - name: Setup .NET
-  #    uses: actions/setup-dotnet@v2
-  #    with:
-  #      dotnet-version: 6.0.x
-  #  - name: Bump version and push tag
-  #    id: tag_version
-  #    uses: mathieudutour/github-tag-action@v6.0
-  #    with:
-  #      github_token: ${{ secrets.TOKEN_GITHUB }}
-  #  - name: Create a GitHub release
-  #    uses: ncipollo/release-action@v1
-  #    with:
-  #      tag: ${{ steps.tag_version.outputs.new_tag }}
-  #      name: Release ${{ steps.tag_version.outputs.new_tag }}
-  #      body: ${{ steps.tag_version.outputs.changelog }}
-  #  - name: Create Nuget Package
-  #    run: dotnet build -c Release ./ZDatabase/ZDatabase.csproj && dotnet pack -c Release -p:PackageVersion=${{ steps.tag_version.outputs.new_version }} -o . ./ZDatabase/ZDatabase.csproj
-  #  - name: Upload Package for Publishing
-  #    uses: actions/upload-artifact@v3
-  #    with:
-  #      name: Package
-  #      path: ./*.nupkg
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 3.1.x
+      - name: Semantic Release
+        id: release
+        uses: cycjimmy/semantic-release-action@v3
+        with:
+          working_directory: ./ZDatabase
+          extra_plugins: |
+            @semantic-release/commit-analyzer
+            @semantic-release/release-notes-generator
+            @semantic-release/github
+            @semantic-release/git
+            @semantic-release/exec
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          
+      - name: 'Pack & Publish project'
+        if: ${{ steps.release.outputs.new_release_version }}
+        run: |
+          dotnet clean
+          dotnet pack ${{ env.PROJECT_PATH }} --configuration Release --include-symbols --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+          dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s ${{ env.NUGET_PUSH_URL }}
+
+                    
