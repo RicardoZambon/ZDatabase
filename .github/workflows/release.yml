@@ -25,7 +25,6 @@ jobs:
         id: release
         uses: cycjimmy/semantic-release-action@v4
         with:
-          branch: main
           working_directory: ./ZDatabase
           extra_plugins: |
             @semantic-release/commit-analyzer
