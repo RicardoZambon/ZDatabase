@@ -20,7 +20,7 @@ jobs:
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: 3.1.x
+          dotnet-version: 6.0.x
       - name: Semantic Release
         id: release
         uses: cycjimmy/semantic-release-action@v4
@@ -31,7 +31,6 @@ jobs:
             @semantic-release/commit-analyzer
             @semantic-release/release-notes-generator
             @semantic-release/github
-            @semantic-release/git
             @semantic-release/exec
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
