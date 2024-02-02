@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 jobs:
   get-next-version:
-    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v
+    uses: semantic-release-action/next-release-version/.github/workflows/next-release-version.yml@v4
 
   release:
     name: Display the generated versioning.
