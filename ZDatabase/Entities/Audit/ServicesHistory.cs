@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics.CodeAnalysis;
 using ZDatabase.ValueGenerators;
 
 namespace ZDatabase.Entities.Audit
@@ -22,6 +23,7 @@ namespace ZDatabase.Entities.Audit
         /// <value>
         /// The changed by.
         /// </value>
+        [ExcludeFromCodeCoverage]
         public virtual TUsers? ChangedBy { get; set; }
 
         /// <summary>

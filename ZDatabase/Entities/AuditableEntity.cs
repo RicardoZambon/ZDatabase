@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics.CodeAnalysis;
 using ZDatabase.ValueGenerators;
 
 namespace ZDatabase.Entities
@@ -22,6 +23,7 @@ namespace ZDatabase.Entities
         /// <value>
         /// The created by.
         /// </value>
+        [ExcludeFromCodeCoverage]
         public virtual TUsers? CreatedBy { get; set; }
 
         /// <summary>
@@ -38,6 +40,7 @@ namespace ZDatabase.Entities
         /// <value>
         /// The last changed by.
         /// </value>
+        [ExcludeFromCodeCoverage]
         public virtual TUsers? LastChangedBy { get; set; }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 using ZDatabase.Services.Interfaces;
 
 namespace ZDatabase.ExtensionMethods
@@ -6,6 +7,7 @@ namespace ZDatabase.ExtensionMethods
     /// <summary>
     /// Extension methods for <see cref="Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public static class DependencyInjectionExtensions
     {
         /// <summary>

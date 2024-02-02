@@ -1,8 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using ZDatabase.Entities;
 
 namespace ZDatabase.Entities.Audit
 {
@@ -51,7 +48,8 @@ namespace ZDatabase.Entities.Audit
             // ServiceHistory
             builder.HasOne(x => x.ServiceHistory)
                 .WithMany()
-                .HasForeignKey(x => x.ServiceHistoryID);
+                .HasForeignKey(x => x.ServiceHistoryID)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

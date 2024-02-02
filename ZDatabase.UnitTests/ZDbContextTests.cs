@@ -10,8 +10,14 @@ using ZDatabase.UnitTests.Fakes.EntitiesFake;
 
 namespace ZDatabase.UnitTests
 {
+    /// <summary>
+    /// Unit tests for <see cref="ZDbContext{TDbContext}"/>.
+    /// </summary>
     public class ZDbContextTests
     {
+        /// <summary>
+        /// Test the CreateProxy should create proxy entries.
+        /// </summary>
         [Fact]
         public void CreateProxy_Pass_CreateProxyEntry()
         {
@@ -32,6 +38,9 @@ namespace ZDatabase.UnitTests
             entityFake.Should().NotBeNull();
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should fail when saving auditable entity and is missing service history.
+        /// </summary>
         [Fact]
         public void SaveChanges_Fail_WhenThereIsNoServiceHistory()
         {
@@ -50,6 +59,9 @@ namespace ZDatabase.UnitTests
             act.Should().Throw<MissingServiceHistoryException>();
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should have added audited entries.
+        /// </summary>
         [Fact]
         public void SaveChanges_Pass_ShouldHaveAddedAuditedEntries()
         {
@@ -87,6 +99,9 @@ namespace ZDatabase.UnitTests
             auditableEntity!.CreatedOn.Should().BeBefore(DateTime.UtcNow);
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should have added operations history when deleting.
+        /// </summary>
         [Fact]
         public void SaveChanges_Pass_ShouldHaveAddedOperationsHistoryWhenDeleting()
         {
@@ -132,6 +147,9 @@ namespace ZDatabase.UnitTests
             operationHistory!.TableName.Should().Be(entityEntry.Metadata.GetTableName());
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should have added operations history when inserting.
+        /// </summary>
         [Fact]
         public void SaveChanges_Pass_ShouldHaveAddedOperationsHistoryWhenInserting()
         {
@@ -170,6 +188,9 @@ namespace ZDatabase.UnitTests
             operationHistory!.TableName.Should().Be(entityEntry.Metadata.GetTableName());
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should have added operations history when updating.
+        /// </summary>
         [Fact]
         public void SaveChanges_Pass_ShouldHaveAddedOperationsHistoryWhenUpdating()
         {
@@ -237,6 +258,9 @@ namespace ZDatabase.UnitTests
             operationHistory!.TableName.Should().Be(entityEntry.Metadata.GetTableName());
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should have added related operations history when deleting auditable relations.
+        /// </summary>
         [Fact]
         public void SaveChanges_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenDeletingAuditableRelations()
         {
@@ -295,6 +319,9 @@ namespace ZDatabase.UnitTests
             operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should have added related operations history when inserting auditable relations.
+        /// </summary>
         [Fact]
         public void SaveChanges_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenInsertingAuditableRelations()
         {
@@ -347,6 +374,9 @@ namespace ZDatabase.UnitTests
             operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should have added related operations history when updating auditable relations.
+        /// </summary>
         [Fact]
         public void SaveChanges_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenUpdatingAuditableRelations()
         {
@@ -406,6 +436,9 @@ namespace ZDatabase.UnitTests
             operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should have added service history.
+        /// </summary>
         [Fact]
         public void SaveChanges_Pass_ShouldHaveAddedServiceHistory()
         {
@@ -444,13 +477,16 @@ namespace ZDatabase.UnitTests
             serviceHistory!.ChangedOn.Should().BeBefore(DateTime.UtcNow);
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should have called audit handler methods.
+        /// </summary>
         [Fact]
         public void SaveChanges_Pass_ShouldHaveCalledAuditHandlerMethods()
         {
             // Arrange
             IAuditHandler auditHandlerSubstitute = Substitute.For<IAuditHandler>();
 
-            ServiceCollection serviceCollection = new ServiceCollection();
+            ServiceCollection serviceCollection = new();
             serviceCollection.AddSingleton(auditHandlerSubstitute);
 
             IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
@@ -469,6 +505,40 @@ namespace ZDatabase.UnitTests
             auditHandlerSubstitute.Received().AddOperationEntitiesAfterSaved();
         }
 
+        /// <summary>
+        /// Test the SaveChanges method should not require service history when only saving not auditable entities.
+        /// </summary>
+        [Fact]
+        public void SaveChanges_Pass_ShouldNotRequireServiceHistoryWhenNotAuditable()
+        {
+            // Arrange
+            ICurrentUserProvider<long> currentUserSubstitute = Substitute.For<ICurrentUserProvider<long>>();
+            currentUserSubstitute.CurrentUserID.Returns(1);
+
+            ServiceCollection serviceCollection = new();
+            serviceCollection.AddSingleton(currentUserSubstitute);
+
+            IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
+
+            // Insert the auditable entity.
+            EntityFake entity = new();
+            EntityEntry<EntityFake> entityEntry = dbContext.Add(entity);
+
+            // Act
+            Action act = () =>
+            {
+                dbContext.SaveChanges();
+            };
+
+            // Assert
+            act.Should().NotThrow();
+
+            dbContext.Set<EntityFake>().FirstOrDefault().Should().NotBeNull();
+        }
+
+        /// <summary>
+        /// Test the SaveChangesAsync method should fail when saving auditable entity and is missing service history.
+        /// </summary>
         [Fact]
         public async Task SaveChangesAsync_Fail_WhenThereIsNoServiceHistory()
         {
@@ -487,6 +557,9 @@ namespace ZDatabase.UnitTests
             await act.Should().ThrowAsync<MissingServiceHistoryException>();
         }
 
+        /// <summary>
+        /// Test the SaveChangesAsync method should have added audited entries.
+        /// </summary>
         [Fact]
         public async Task SaveChangesAsync_Pass_ShouldHaveAddedAuditedEntries()
         {
@@ -524,6 +597,9 @@ namespace ZDatabase.UnitTests
             auditableEntity!.CreatedOn.Should().BeBefore(DateTime.UtcNow);
         }
 
+        /// <summary>
+        /// Test the SaveChangesAsync method should have added operations history when deleting.
+        /// </summary>
         [Fact]
         public async Task SaveChangesAsync_Pass_ShouldHaveAddedOperationsHistoryWhenInserting()
         {
@@ -562,6 +638,9 @@ namespace ZDatabase.UnitTests
             operationHistory!.TableName.Should().Be(entityEntry.Metadata.GetTableName());
         }
 
+        /// <summary>
+        /// Test the SaveChangesAsync method should have added operations history when updating.
+        /// </summary>
         [Fact]
         public async Task SaveChangesAsync_Pass_ShouldHaveAddedOperationsHistoryWhenUpdating()
         {
@@ -629,6 +708,9 @@ namespace ZDatabase.UnitTests
             operationHistory!.TableName.Should().Be(entityEntry.Metadata.GetTableName());
         }
 
+        /// <summary>
+        /// Test the SaveChangesAsync method should have added operations history when deleting.
+        /// </summary>
         [Fact]
         public async Task SaveChangesAsync_Pass_ShouldHaveAddedOperationsHistoryWhenDeleting()
         {
@@ -674,6 +756,9 @@ namespace ZDatabase.UnitTests
             operationHistory!.TableName.Should().Be(entityEntry.Metadata.GetTableName());
         }
 
+        /// <summary>
+        /// Test the SaveChangesAsync method should have added related operations history when deleting auditable relations.
+        /// </summary>
         [Fact]
         public async Task SaveChangesAsync_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenDeletingAuditableRelations()
         {
@@ -732,6 +817,9 @@ namespace ZDatabase.UnitTests
             (await operationsHistory.AnyAsync(x => x.EntityID == entity.ID)).Should().BeTrue();
         }
 
+        /// <summary>
+        /// Test the SaveChangesAsync method should have added related operations history when inserting auditable relations.
+        /// </summary>
         [Fact]
         public async Task SaveChangesAsync_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenInsertingAuditableRelations()
         {
@@ -784,6 +872,9 @@ namespace ZDatabase.UnitTests
             (await operationsHistory.AnyAsync(x => x.EntityID == entity.ID)).Should().BeTrue();
         }
 
+        /// <summary>
+        /// Test the SaveChangesAsync method should have added related operations history when updating auditable relations.
+        /// </summary>
         [Fact]
         public async Task SaveChangesAsync_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenUpdatingAuditableRelations()
         {
@@ -843,6 +934,9 @@ namespace ZDatabase.UnitTests
             (await operationsHistory.AnyAsync(x => x.EntityID == entity.ID)).Should().BeTrue();
         }
 
+        /// <summary>
+        /// Test the SaveChangesAsync method should have added service history.
+        /// </summary>
         [Fact]
         public async Task SaveChangesAsync_Pass_ShouldHaveAddedServiceHistory()
         {
@@ -881,13 +975,16 @@ namespace ZDatabase.UnitTests
             serviceHistory!.ChangedOn.Should().BeBefore(DateTime.UtcNow);
         }
 
+        /// <summary>
+        /// Test the SaveChangesAsync method should have called audit handler methods.
+        /// </summary>
         [Fact]
         public async Task SaveChangesAsync_Pass_ShouldHaveCalledAuditHandlerMethods()
         {
             // Arrange
             IAuditHandler auditHandlerSubstitute = Substitute.For<IAuditHandler>();
 
-            ServiceCollection serviceCollection = new ServiceCollection();
+            ServiceCollection serviceCollection = new();
             serviceCollection.AddSingleton(auditHandlerSubstitute);
 
             IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
@@ -904,6 +1001,37 @@ namespace ZDatabase.UnitTests
             auditHandlerSubstitute.Received().RefreshAuditedEntries(Arg.Any<ChangeTracker>());
             await auditHandlerSubstitute.Received().AddOperationEntitiesBeforeSavingAsync();
             await auditHandlerSubstitute.Received().AddOperationEntitiesAfterSavedAsync();
+        }
+
+        /// <summary>
+        /// Test the SaveChangesAsync method should not require service history when not auditable.
+        /// </summary>
+        [Fact]
+        public async Task SaveChangesAsync_Pass_ShouldNotRequireServiceHistoryWhenNotAuditable()
+        {
+            // Arrange
+            ICurrentUserProvider<long> currentUserSubstitute = Substitute.For<ICurrentUserProvider<long>>();
+            currentUserSubstitute.CurrentUserID.Returns(1);
+
+            ServiceCollection serviceCollection = new();
+            serviceCollection.AddSingleton(currentUserSubstitute);
+
+            IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
+
+            // Insert the auditable entity.
+            EntityFake entity = new();
+            EntityEntry<EntityFake> entityEntry = await dbContext.AddAsync(entity);
+
+            // Act
+            Func<Task> act = async () =>
+            {
+                await dbContext.SaveChangesAsync();
+            };
+
+            // Assert
+            await act.Should().NotThrowAsync();
+
+            (await dbContext.Set<EntityFake>().FirstOrDefaultAsync()).Should().NotBeNull();
         }
     }
 }
