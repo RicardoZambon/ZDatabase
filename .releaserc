@@ -16,12 +16,6 @@
         "@semantic-release/release-notes-generator",
         "@semantic-release/github",
         [
-            "@semantic-release/exec",
-            {
-                "prepareCmd": "../updateVersion.sh '${nextRelease.version}' 'ZDatabase.csproj'"
-            }
-        ],
-        [
             "@semantic-release/git",
             {
                 "assets": [
