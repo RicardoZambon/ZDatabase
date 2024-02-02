@@ -23,7 +23,7 @@ jobs:
           dotnet-version: 3.1.x
       - name: Semantic Release
         id: release
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v4
         with:
           working_directory: ./ZDatabase
           extra_plugins: |
