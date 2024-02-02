@@ -27,11 +27,10 @@ jobs:
         with:
           branch: main
           working_directory: ./ZDatabase
-          plugins: |
+          extra_plugins: |
             @semantic-release/commit-analyzer
             @semantic-release/release-notes-generator
             @semantic-release/github
-            @semantic-release/git
             @semantic-release/exec
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
