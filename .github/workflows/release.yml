@@ -34,7 +34,7 @@ jobs:
             @semantic-release/git
             @semantic-release/exec
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: 'Pack & Publish project'
         if: ${{ steps.release.outputs.new_release_version }}
