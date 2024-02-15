@@ -12,7 +12,19 @@
         }
     ],
     "plugins": [
-        "@semantic-release/commit-analyzer",
+        [
+          "@semantic-release/commit-analyzer",
+          {
+            "preset": "angular",
+            "releaseRules": [
+              { "type": "bug", "release": "patch" },
+              { "type": "fix", "release": "patch" },
+              { "type": "feat", "release": "minor" },
+              { "type": "breaking-changes", "release": "major" },
+              { "scope": "no-release", "release": false }
+            ]
+          }
+        ],
         "@semantic-release/release-notes-generator",
         "@semantic-release/github",
         [
