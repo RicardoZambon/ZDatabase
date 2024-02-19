@@ -19,6 +19,7 @@
             "releaseRules": [
               { "type": "bug", "release": "patch" },
               { "type": "fix", "release": "patch" },
+			  { "type": "refactor", "release": "patch" },
               { "type": "feat", "release": "minor" },
               { "type": "breaking-changes", "release": "major" },
               { "scope": "no-release", "release": false }
