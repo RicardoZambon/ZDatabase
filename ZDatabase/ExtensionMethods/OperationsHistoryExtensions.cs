@@ -8,9 +8,8 @@ namespace ZDatabase.ExtensionMethods
 {
     internal static class OperationsHistoryExtensions
     {
-        internal static void GenerateValues<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>(this OperationsHistory<TServicesHistory, TOperationsHistory, TUsers, TUsersKey> operationsHistory, AuditEntry entry, TServicesHistory servicesHistory)
-            where TServicesHistory : ServicesHistory<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>
-            where TOperationsHistory : OperationsHistory<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>
+        internal static void GenerateValues<TServiceHistory, TUsers, TUsersKey>(this OperationsHistory<TServiceHistory, TUsers, TUsersKey> operationsHistory, AuditEntry entry, TServiceHistory servicesHistory)
+            where TServiceHistory : ServicesHistory<TUsers, TUsersKey>
             where TUsers : class
             where TUsersKey : struct
         {

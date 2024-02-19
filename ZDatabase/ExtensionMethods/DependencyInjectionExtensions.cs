@@ -1,8 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
-using ZDatabase.Entities.Audit;
-using ZDatabase.Repositories.Audit;
-using ZDatabase.Repositories.Audit.Interfaces;
 using ZDatabase.Services.Interfaces;
 
 namespace ZDatabase.ExtensionMethods
@@ -21,26 +18,7 @@ namespace ZDatabase.ExtensionMethods
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddAuditHandler<TAuditHandler>(this IServiceCollection services)
             where TAuditHandler : class, IAuditHandler
-            => services
-                .AddScoped<IAuditHandler, TAuditHandler>();
-
-        /// <summary>
-        /// Adds the audit repositories to the service collection.
-        /// </summary>
-        /// <typeparam name="TServicesHistory">The type of the services history.</typeparam>
-        /// <typeparam name="TOperationsHistory">The type of the operations history.</typeparam>
-        /// <typeparam name="TUsers">The type of the users.</typeparam>
-        /// <typeparam name="TUsersKey">The type of the users key.</typeparam>
-        /// <param name="services">The services.</param>
-        /// <returns>The service collection.</returns>
-        public static IServiceCollection AddAuditRepositories<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>(this IServiceCollection services)
-            where TServicesHistory : ServicesHistory<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>
-            where TOperationsHistory : OperationsHistory<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>
-            where TUsers : class
-            where TUsersKey : struct
-            => services
-                .AddScoped<IOperationsHistoryRepository<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>, OperationsHistoryRepository<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>>()
-                .AddScoped<IServicesHistoryRepository<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>, ServicesHistoryRepository<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>>();
+            => services.AddScoped<IAuditHandler, TAuditHandler>();
 
         /// <summary>
         /// Adds the current user provider to the service collection.
@@ -52,7 +30,6 @@ namespace ZDatabase.ExtensionMethods
         public static IServiceCollection AddCurrentUserProvider<TCurrentUserProvider, TUserKey>(this IServiceCollection services)
             where TCurrentUserProvider : class, ICurrentUserProvider<TUserKey>
             where TUserKey : struct
-            => services
-                .AddScoped<ICurrentUserProvider<TUserKey>, TCurrentUserProvider>();
+            => services.AddScoped<ICurrentUserProvider<TUserKey>, TCurrentUserProvider>();
     }
 }
