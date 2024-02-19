@@ -1,19 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ZDatabase.Interfaces;
-using ZDatabase.Repositories.Audit.Interfaces;
-using ZDatabase.Repositories.Audit;
-using ZDatabase.UnitTests.Factories;
+﻿using FluentAssertions.Specialized;
+using ZDatabase.Exceptions;
 using ZDatabase.UnitTests.Fakes.EntitiesFake;
 using ZDatabase.Validations;
-using ZDatabase.Entities.Audit;
-using ZDatabase.Exceptions;
-using ZDatabase.Entities;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using FluentAssertions.Specialized;
 
 namespace ZDatabase.UnitTests.Validations
 {
@@ -80,7 +68,7 @@ namespace ZDatabase.UnitTests.Validations
 
             ValidationResult validationResult = new();
             validationResult.SetError(key, message);
-            
+
             // Act
             Action act = () =>
             {
