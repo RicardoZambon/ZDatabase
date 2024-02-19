@@ -13,6 +13,6 @@ namespace ZDatabase.UnitTests.Fakes.ServicesFake
         }
 
         public override OperationsHistoryEntityFake InstantiateOperationsHistory()
-            => new OperationsHistoryEntityFake();
+            => new();
     }
 }
