@@ -6,7 +6,8 @@ using ZDatabase.Services.Interfaces;
 namespace ZDatabase
 {
     /// <inheritdoc />    
-    public abstract class ZDbContext<TDbContext> : DbContext, IDbContext
+    public abstract class ZDbContext<TDbContext>
+        : DbContext, IDbContext
         where TDbContext : DbContext, IDbContext
     {
         #region Variables

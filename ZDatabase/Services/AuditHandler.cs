@@ -13,14 +13,12 @@ namespace ZDatabase.Services
 {
     /// <inheritdoc />
     /// <typeparam name="TServicesHistory">The type of the service history.</typeparam>
-    /// <typeparam name="TOperationsHistory">The type of the operations history.</typeparam>
     /// <typeparam name="TUsers">The type of the users.</typeparam>
     /// <typeparam name="TUsersKey">The type of the users key.</typeparam>
     /// <seealso cref="ZDatabase.Services.Interfaces.IAuditHandler" />
-    public abstract class AuditHandler<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>
+    public abstract class AuditHandler<TServicesHistory, TUsers, TUsersKey>
         : IAuditHandler
-        where TServicesHistory : ServicesHistory<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>
-        where TOperationsHistory : OperationsHistory<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>
+        where TServicesHistory : ServicesHistory<TUsers, TUsersKey>
         where TUsers : class
         where TUsersKey : struct
     {
@@ -59,7 +57,7 @@ namespace ZDatabase.Services
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ZDatabase.Services.AuditHandler{TServiceHistory, TOperationsHistory, TUsers, TUsersKey}"/> class.
+        /// Initializes a new instance of the <see cref="ZDatabase.Services.AuditHandler{TServiceHistory, TUsers, TUsersKey}"/> class.
         /// </summary>
         /// <param name="dbContext">The <see cref="ZDatabase.Interfaces.IDbContext"/> instance.</param>
         public AuditHandler(IDbContext dbContext)
@@ -213,12 +211,12 @@ namespace ZDatabase.Services
 
         #region Private methods
 
-        private bool IsNotTrackedOperationHistory(TOperationsHistory history)
+        private bool IsNotTrackedOperationHistory(OperationsHistory<TServicesHistory, TUsers, TUsersKey> history)
         {
             return dbContext.ChangeTracker.Entries()
                 .Any(x =>
                     x.State == EntityState.Added
-                    && x.Entity is TOperationsHistory historyOperation
+                    && x.Entity is OperationsHistory<TServicesHistory, TUsers, TUsersKey> historyOperation
                     && historyOperation.TableName == history.TableName
                     && historyOperation.EntityName == history.EntityName
                     && historyOperation.EntityID == history.EntityID)
@@ -258,7 +256,7 @@ namespace ZDatabase.Services
             {
                 SetEntryLastChangesProperties(entry);
 
-                TOperationsHistory operationHistory = InstantiateOperationsHistory();
+                OperationsHistory<TServicesHistory, TUsers, TUsersKey> operationHistory = InstantiateOperationsHistory();
                 operationHistory.GenerateValues(entry, ServiceHistory);
 
                 if ((operationHistory.NewValues?.Any() ?? false) && !IsNotTrackedOperationHistory(operationHistory))
@@ -279,7 +277,7 @@ namespace ZDatabase.Services
             {
                 SetEntryLastChangesProperties(entry);
 
-                TOperationsHistory operationHistory = InstantiateOperationsHistory();
+                OperationsHistory<TServicesHistory, TUsers, TUsersKey> operationHistory = InstantiateOperationsHistory();
                 operationHistory.GenerateValues(entry, ServiceHistory);
 
                 if ((operationHistory.NewValues?.Any() ?? false) && !IsNotTrackedOperationHistory(operationHistory))
@@ -297,7 +295,7 @@ namespace ZDatabase.Services
         /// Instantiates the operations history.
         /// </summary>
         /// <returns>The operations history.</returns>
-        public abstract TOperationsHistory InstantiateOperationsHistory();
+        public abstract OperationsHistory<TServicesHistory, TUsers, TUsersKey> InstantiateOperationsHistory();
 
         #endregion
     }
