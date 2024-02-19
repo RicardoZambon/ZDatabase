@@ -9,7 +9,7 @@ namespace ZDatabase.ExtensionMethods
     /// <summary>
     /// Extension methods for <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry"/>.
     /// </summary>
-    internal static class EntityEntryExtensions
+    public static class EntityEntryExtensions
     {
         /// <summary>
         /// Gets the related entries to be audited.
@@ -60,7 +60,7 @@ namespace ZDatabase.ExtensionMethods
         /// <returns>
         ///   <c>true</c> if the value was modified; otherwise, <c>false</c>.
         /// </returns>
-        internal static bool HasValueModified(this PropertyEntry property)
+        public static bool HasValueModified(this PropertyEntry property)
         {
             return property.IsModified
             && ((property.OriginalValue != null && property.CurrentValue == null)
