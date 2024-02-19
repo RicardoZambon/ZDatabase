@@ -3,7 +3,7 @@ using ZDatabase.Entities.Audit;
 
 namespace ZDatabase.UnitTests.Fakes.EntitiesFake
 {
-    internal class OperationsHistoryEntityFake : OperationsHistory<ServicesHistoryEntityFake, UsersEntityFake, long>
+    internal class OperationsHistoryEntityFake : OperationsHistory<ServicesHistoryEntityFake, OperationsHistoryEntityFake, UsersEntityFake, long>
     {
     }
 

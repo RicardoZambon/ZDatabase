@@ -6,14 +6,14 @@ namespace ZDatabase.ExtensionMethods
     /// <summary>
     /// Extension methods for <see cref="ZDatabase.Entries.AuditEntry"/>.
     /// </summary>
-    internal static class AuditEntryExtensions
+    public static class AuditEntryExtensions
     {
         /// <summary>
         /// Gets the audited entry properties old values.
         /// </summary>
         /// <param name="entry">The entry.</param>
         /// <returns>Dictionary with the changed properties and their values.</returns>
-        internal static Dictionary<string, object?> GetOldValues(this AuditEntry entry)
+        public static Dictionary<string, object?> GetOldValues(this AuditEntry entry)
         {
             return entry.OriginalState switch
             {
@@ -28,7 +28,7 @@ namespace ZDatabase.ExtensionMethods
         /// </summary>
         /// <param name="entry">The entry.</param>
         /// <returns>Dictionary with the changed properties and their values.</returns>
-        internal static Dictionary<string, object?> GetNewValues(this AuditEntry entry)
+        public static Dictionary<string, object?> GetNewValues(this AuditEntry entry)
         {
             return entry.OriginalState switch
             {

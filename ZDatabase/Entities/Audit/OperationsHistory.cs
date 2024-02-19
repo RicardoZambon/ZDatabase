@@ -6,13 +6,15 @@ namespace ZDatabase.Entities.Audit
     /// <summary>
     /// Abstract class for database history operations.
     /// </summary>
-    /// <typeparam name="TServiceHistory">The type of the service history.</typeparam>
+    /// <typeparam name="TServicesHistory">The type of the service history.</typeparam>
+    /// <typeparam name="TOperationsHistory">The type of the operations history.</typeparam>
     /// <typeparam name="TUsers">The type of the users.</typeparam>
     /// <typeparam name="TUsersKey">The type of the users key.</typeparam>
     /// <seealso cref="ZDatabase.Entities.Audit.OperationsHistoryBase" />
-    public abstract class OperationsHistory<TServiceHistory, TUsers, TUsersKey>
+    public abstract class OperationsHistory<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>
         : OperationsHistoryBase
-        where TServiceHistory : ServicesHistory<TUsers, TUsersKey>
+        where TServicesHistory : ServicesHistory<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>
+        where TOperationsHistory : OperationsHistory<TServicesHistory, TOperationsHistory, TUsers, TUsersKey>
         where TUsers : class
         where TUsersKey : struct
     {
@@ -22,21 +24,21 @@ namespace ZDatabase.Entities.Audit
         /// <value>
         /// The service history.
         /// </value>
-        public virtual TServiceHistory? ServiceHistory { get; set; }
+        public virtual TServicesHistory? ServiceHistory { get; set; }
     }
 
     /// <summary>
-    /// Entity configuration for <see cref="ZDatabase.Entities.Audit.OperationsHistory{TServiceHistory, TUsers, TUsersKey}" />.
+    /// Entity configuration for <see cref="ZDatabase.Entities.Audit.OperationsHistory{TServiceHistory, TOperationsHistoryEntity, TUsers, TUsersKey}" />.
     /// </summary>
     /// <typeparam name="TOperationsHistoryEntity">The type of the operations history entity.</typeparam>
-    /// <typeparam name="TServiceHistory">The type of the service history.</typeparam>
+    /// <typeparam name="TServicesHistory">The type of the service history.</typeparam>
     /// <typeparam name="TUsers">The type of the users.</typeparam>
     /// <typeparam name="TUsersKey">The type of the users key.</typeparam>
     /// <seealso cref="ZDatabase.Entities.Audit.OperationHistoryBaseConfiguration{TOperationsHistoryEntity}" />
-    public abstract class OperationsHistoryConfiguration<TOperationsHistoryEntity, TServiceHistory, TUsers, TUsersKey>
+    public abstract class OperationsHistoryConfiguration<TOperationsHistoryEntity, TServicesHistory, TUsers, TUsersKey>
         : OperationHistoryBaseConfiguration<TOperationsHistoryEntity>
-        where TOperationsHistoryEntity : OperationsHistory<TServiceHistory, TUsers, TUsersKey>
-        where TServiceHistory : ServicesHistory<TUsers, TUsersKey>
+        where TOperationsHistoryEntity : OperationsHistory<TServicesHistory, TOperationsHistoryEntity, TUsers, TUsersKey>
+        where TServicesHistory : ServicesHistory<TServicesHistory, TOperationsHistoryEntity, TUsers, TUsersKey>
         where TUsers : class
         where TUsersKey : struct
     {
@@ -47,7 +49,7 @@ namespace ZDatabase.Entities.Audit
 
             // ServiceHistory
             builder.HasOne(x => x.ServiceHistory)
-                .WithMany()
+                .WithMany(x => x.Operations)
                 .HasForeignKey(x => x.ServiceHistoryID)
                 .OnDelete(DeleteBehavior.NoAction);
         }
