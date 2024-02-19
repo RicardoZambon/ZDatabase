@@ -37,7 +37,7 @@ namespace ZDatabase.Repositories.Audit
         }
 
         /// <inheritdoc />
-        public IQueryable<TOperationsHistory> ListOperations<TEntity>(long serviceHistoryID)
+        public IQueryable<TOperationsHistory> ListOperations(long serviceHistoryID)
             => from oh in dbContext.Set<TOperationsHistory>()
                where oh.ServiceHistoryID == serviceHistoryID
                select oh;

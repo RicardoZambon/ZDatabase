@@ -22,6 +22,6 @@ namespace ZDatabase.Repositories.Audit.Interfaces
         /// </summary>
         /// <param name="serviceHistoryId">The service history identifier.</param>
         /// <returns>Query with all history operations.</returns>
-        IQueryable<TOperationsHistory> ListOperations<TEntity>(long serviceHistoryId);
+        IQueryable<TOperationsHistory> ListOperations(long serviceHistoryId);
     }
 }
