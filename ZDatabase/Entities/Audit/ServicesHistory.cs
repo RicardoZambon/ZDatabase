@@ -44,7 +44,7 @@ namespace ZDatabase.Entities.Audit
         /// <value>
         /// The operations.
         /// </value>
-        public ICollection<TOperationsHistory>? Operations { get; set; }
+        public virtual ICollection<TOperationsHistory>? Operations { get; set; }
     }
 
     /// <summary>
