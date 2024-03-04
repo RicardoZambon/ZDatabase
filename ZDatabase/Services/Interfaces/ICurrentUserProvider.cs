@@ -14,5 +14,15 @@
         /// The current user identifier.
         /// </value>
         TUserKey? CurrentUserID { get; }
+
+        /// <summary>
+        /// Disables the service user mode.
+        /// </summary>
+        void DisableServiceUserMode();
+
+        /// <summary>
+        /// Enables the service user mode.
+        /// </summary>
+        void EnableServiceUserMode();
     }
 }
