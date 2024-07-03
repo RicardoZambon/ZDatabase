@@ -94,6 +94,8 @@ namespace ZDatabase.Services
         /// <inheritdoc />
         public async Task AddOperationEntitiesAfterSavedAsync()
         {
+            OldServiceHistoryEntry = ServiceHistoryEntry;
+
             if (AuditedEntries.Any() || AuditedRelatedEntries.Any())
             {
                 foreach (AuditEntry entry in AuditedEntries.EntriesWithoutTemporaryProperties())
@@ -106,7 +108,6 @@ namespace ZDatabase.Services
                     await TrackAuditEntryAsync(entry);
                 }
 
-                OldServiceHistoryEntry = ServiceHistoryEntry;
                 await dbContext.SaveChangesAsync();
             }
         }
