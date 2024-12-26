@@ -39,9 +39,9 @@ namespace ZDatabase.Services.Interfaces
         Task AddOperationEntitiesBeforeSavingAsync();
 
         /// <summary>
-        /// Clears the services history.
+        /// Clears the service history.
         /// </summary>
-        void ClearServicesHistory();
+        void ClearServiceHistory();
 
         /// <summary>
         /// Refreshes the audited entries.

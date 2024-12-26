@@ -17,7 +17,7 @@ namespace ZDatabase.UnitTests.Factories
             serviceCollection ??= new ServiceCollection();
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-            ProxiesConventionSetPlugin proxiesConventionSubstitute = Substitute.For<ProxiesConventionSetPlugin>(null, null, null, null);
+            ProxiesConventionSetPlugin proxiesConventionSubstitute = Substitute.For<ProxiesConventionSetPlugin>(null, null, null);
             proxiesConventionSubstitute.ModifyConventions(Arg.Any<ConventionSet>()).Returns(arg => arg.ArgAt<ConventionSet>(0));
 
             IProxyFactory proxyFactorySubstitute = Substitute.For<IProxyFactory>();
