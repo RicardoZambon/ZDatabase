@@ -13,6 +13,13 @@ namespace ZDatabase
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Gets the audit handler.
+        /// </summary>
+        /// <value>
+        /// The audit handler.
+        /// </value>
+        protected IAuditHandler AuditHandler { get => this.GetService<IAuditHandler>(); }
         #endregion
 
         #region Constructor
@@ -28,6 +35,12 @@ namespace ZDatabase
         #endregion
 
         #region Public methods
+        /// <inheritdoc />
+        public void ClearAuditServiceHistory()
+        {
+            AuditHandler?.ClearServiceHistory();
+        }
+
         /// <summary>
         /// Creates the proxy.
         /// </summary>
@@ -51,7 +64,7 @@ namespace ZDatabase
         /// <inheritdoc />
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            IAuditHandler auditHandler = this.GetService<IAuditHandler>();
+            IAuditHandler auditHandler = AuditHandler;
 
             if (auditHandler is not null)
             {
@@ -69,7 +82,7 @@ namespace ZDatabase
         /// <inheritdoc />
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
-            IAuditHandler auditHandler = this.GetService<IAuditHandler>();
+            IAuditHandler auditHandler = AuditHandler;
 
             if (auditHandler is not null)
             {

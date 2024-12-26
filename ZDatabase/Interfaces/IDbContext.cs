@@ -56,6 +56,11 @@ namespace ZDatabase.Interfaces
             where TEntity : class;
 
         /// <summary>
+        /// Clears the audit service history.
+        /// </summary>
+        void ClearAuditServiceHistory();
+
+        /// <summary>
         /// Creates the proxy.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>

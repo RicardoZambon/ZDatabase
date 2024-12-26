@@ -149,7 +149,7 @@ namespace ZDatabase.Services
         }
 
         /// <inheritdoc />
-        public void ClearServicesHistory()
+        public void ClearServiceHistory()
         {
             OldServiceHistoryEntry = null;
             ServiceHistoryEntry = null;

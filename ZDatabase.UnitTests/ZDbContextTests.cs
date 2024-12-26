@@ -659,6 +659,7 @@ namespace ZDatabase.UnitTests
 
             await dbContext.AddAsync(new ServicesHistoryEntityFake());
             await dbContext.SaveChangesAsync();
+            dbContext.ClearAuditServiceHistory();
 
             // Update the auditable entity.
             entity.RandomGuid = Guid.NewGuid();
@@ -729,6 +730,7 @@ namespace ZDatabase.UnitTests
 
             await dbContext.AddAsync(new ServicesHistoryEntityFake());
             await dbContext.SaveChangesAsync();
+            dbContext.ClearAuditServiceHistory();
 
             // Delete the auditable entity.
             entity.RandomGuid = Guid.NewGuid();
@@ -779,6 +781,7 @@ namespace ZDatabase.UnitTests
 
             await dbContext.AddAsync(new ServicesHistoryEntityFake());
             await dbContext.SaveChangesAsync();
+            dbContext.ClearAuditServiceHistory();
 
             // Insert the child auditable entity.
             ChildAuditableEntityFake childEntity = new()
@@ -790,6 +793,7 @@ namespace ZDatabase.UnitTests
 
             await dbContext.AddAsync(new ServicesHistoryEntityFake());
             await dbContext.SaveChangesAsync();
+            dbContext.ClearAuditServiceHistory();
 
             // Update the child auditable entity.
             dbContext.Remove(childEntity);
@@ -840,6 +844,7 @@ namespace ZDatabase.UnitTests
 
             await dbContext.AddAsync(new ServicesHistoryEntityFake());
             await dbContext.SaveChangesAsync();
+            dbContext.ClearAuditServiceHistory();
 
             // Insert the child auditable entity.
             ChildAuditableEntityFake childEntity = new()
@@ -895,6 +900,7 @@ namespace ZDatabase.UnitTests
 
             await dbContext.AddAsync(new ServicesHistoryEntityFake());
             await dbContext.SaveChangesAsync();
+            dbContext.ClearAuditServiceHistory();
 
             // Insert the child auditable entity.
             ChildAuditableEntityFake childEntity = new()
@@ -906,6 +912,7 @@ namespace ZDatabase.UnitTests
 
             await dbContext.AddAsync(new ServicesHistoryEntityFake());
             await dbContext.SaveChangesAsync();
+            dbContext.ClearAuditServiceHistory();
 
             // Update the child auditable entity.
             childEntity.DummyValue = Guid.NewGuid().ToString();

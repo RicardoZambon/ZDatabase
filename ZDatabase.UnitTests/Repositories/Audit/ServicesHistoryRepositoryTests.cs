@@ -88,6 +88,7 @@ namespace ZDatabase.UnitTests.Repositories.Audit
             await dbContext.AddAsync(auditableEntity1);
 
             await dbContext.SaveChangesAsync();
+            dbContext.ClearAuditServiceHistory();
 
             // Second service
             ServicesHistoryEntityFake serviceHistory2 = new();
