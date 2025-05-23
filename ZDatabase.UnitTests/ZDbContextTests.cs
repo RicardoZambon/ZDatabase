@@ -250,7 +250,7 @@ namespace ZDatabase.UnitTests
             string newValues = JsonSerializer.Serialize(newValuesDictionary.OrderBy(x => x.Key).ToDictionary(k => k.Key, v => v.Value));
             string oldValues = JsonSerializer.Serialize(oldValuesDictionary.OrderBy(x => x.Key).ToDictionary(k => k.Key, v => v.Value));
 
-            OperationsHistoryEntityFake ? operationHistory = operationsHistory.FirstOrDefault();
+            OperationsHistoryEntityFake? operationHistory = operationsHistory.FirstOrDefault();
             operationHistory.Should().NotBeNull();
             operationHistory!.EntityName.Should().Be(entityEntry.Metadata.DisplayName());
             operationHistory!.NewValues.Should().Be(newValues);
@@ -285,8 +285,8 @@ namespace ZDatabase.UnitTests
             // Insert the child auditable entity.
             ChildAuditableEntityFake childEntity = new()
             {
-                Parent = entity,
-                ParentID = entity.ID,
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
             };
             EntityEntry<ChildAuditableEntityFake> childEntityEntry = dbContext.Add(childEntity);
 
@@ -320,6 +320,159 @@ namespace ZDatabase.UnitTests
         }
 
         /// <summary>
+        /// Test the SaveChanges method should have added many-to-many operations history when deleting a child auditable relation.
+        /// </summary>
+        [Fact]
+        public void SaveChanges_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenDeletingManyToManyChildAuditableRelations()
+        {
+            // Arrange
+            string serviceHistoryName = "Delete many-to-many child entities";
+
+            ICurrentUserProvider<long> currentUserSubstitute = Substitute.For<ICurrentUserProvider<long>>();
+            currentUserSubstitute.CurrentUserID.Returns(1);
+
+            ServiceCollection serviceCollection = new();
+            serviceCollection.AddSingleton(currentUserSubstitute);
+
+            IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
+
+            // Insert the auditable entity.
+            AuditableEntityFake entity = new();
+            EntityEntry<AuditableEntityFake> entityEntry = dbContext.Add(entity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the child auditable entity.
+            ChildAuditableEntityFake childEntity = new()
+            {
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
+            };
+            EntityEntry<ChildAuditableEntityFake> childEntityEntry = dbContext.Add(childEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the many to many child auditable entity.
+            ManyToManyChildAuditableEntityFake manyToManyChildEntity1 = new()
+            {
+                ChildAuditableEntities = [
+                    childEntity,
+                ],
+            };
+            EntityEntry<ManyToManyChildAuditableEntityFake> manyToManyChildEntityEntry1 = dbContext.Add(manyToManyChildEntity1);
+
+            ManyToManyChildAuditableEntityFake manyToManyChildEntity2 = new()
+            {
+                ChildAuditableEntities = [
+                    childEntity,
+                ],
+            };
+            EntityEntry<ManyToManyChildAuditableEntityFake> manyToManyChildEntityEntry2 = dbContext.Add(manyToManyChildEntity2);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Update the child auditable entity.
+            dbContext.Remove(manyToManyChildEntity2);
+
+            dbContext.Add(new ServicesHistoryEntityFake() { Name = serviceHistoryName });
+
+            // Act
+            Action act = () =>
+            {
+                dbContext.SaveChanges();
+            };
+
+            // Assert
+            act.Should().NotThrow();
+
+            IQueryable<ServicesHistoryEntityFake> servicesHistory = dbContext.Set<ServicesHistoryEntityFake>().Where(x => x.Name == serviceHistoryName);
+            servicesHistory.Should().HaveCount(1);
+
+            ServicesHistoryEntityFake? serviceHistory = servicesHistory.FirstOrDefault();
+            serviceHistory.Should().NotBeNull();
+
+            IQueryable<OperationsHistoryEntityFake> operationsHistory = dbContext.Set<OperationsHistoryEntityFake>().Where(x => x.ServiceHistoryID == serviceHistory!.ID);
+            operationsHistory.Should().HaveCount(4);
+
+            operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
+        }
+
+        /// <summary>
+        /// Test the SaveChanges method should have added related operations history when deleting a child auditable relation.
+        /// </summary>
+        [Fact]
+        public void SaveChanges_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenDeletingRelatedChildAuditableRelations()
+        {
+            // Arrange
+            string serviceHistoryName = "Delete related child entities";
+
+            ICurrentUserProvider<long> currentUserSubstitute = Substitute.For<ICurrentUserProvider<long>>();
+            currentUserSubstitute.CurrentUserID.Returns(1);
+
+            ServiceCollection serviceCollection = new();
+            serviceCollection.AddSingleton(currentUserSubstitute);
+
+            IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
+
+            // Insert the auditable entity.
+            AuditableEntityFake entity = new();
+            EntityEntry<AuditableEntityFake> entityEntry = dbContext.Add(entity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the child auditable entity.
+            ChildAuditableEntityFake childEntity = new()
+            {
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
+            };
+            EntityEntry<ChildAuditableEntityFake> childEntityEntry = dbContext.Add(childEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the related child auditable entity.
+            RelatedChildAuditableEntityFake relatedChildEntity = new()
+            {
+                ChildAuditableEntity = childEntity,
+                ChildAuditableEntityID = childEntity.ID,
+            };
+            EntityEntry<RelatedChildAuditableEntityFake> relatedChildEntityEntry = dbContext.Add(relatedChildEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Update the related child auditable entity.
+            dbContext.Remove(relatedChildEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake() { Name = serviceHistoryName });
+
+            // Act
+            Action act = () =>
+            {
+                dbContext.SaveChanges();
+            };
+
+            // Assert
+            act.Should().NotThrow();
+
+            IQueryable<ServicesHistoryEntityFake> servicesHistory = dbContext.Set<ServicesHistoryEntityFake>().Where(x => x.Name == serviceHistoryName);
+            servicesHistory.Should().HaveCount(1);
+
+            ServicesHistoryEntityFake? serviceHistory = servicesHistory.FirstOrDefault();
+            serviceHistory.Should().NotBeNull();
+
+            IQueryable<OperationsHistoryEntityFake> operationsHistory = dbContext.Set<OperationsHistoryEntityFake>().Where(x => x.ServiceHistoryID == serviceHistory!.ID);
+            operationsHistory.Should().HaveCount(3);
+
+            operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
+        }
+
+        /// <summary>
         /// Test the SaveChanges method should have added related operations history when inserting auditable relations.
         /// </summary>
         [Fact]
@@ -346,8 +499,8 @@ namespace ZDatabase.UnitTests
             // Insert the child auditable entity.
             ChildAuditableEntityFake childEntity = new()
             {
-                Parent = entity,
-                ParentID = entity.ID,
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
             };
             EntityEntry<ChildAuditableEntityFake> childEntityEntry = dbContext.Add(childEntity);
 
@@ -370,6 +523,147 @@ namespace ZDatabase.UnitTests
 
             IQueryable<OperationsHistoryEntityFake> operationsHistory = dbContext.Set<OperationsHistoryEntityFake>().Where(x => x.ServiceHistoryID == serviceHistory!.ID);
             operationsHistory.Should().HaveCount(2);
+
+            operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
+        }
+
+        /// <summary>
+        /// Test the SaveChanges method should have added many-to-many operations history when inserting a child auditable relation.
+        /// </summary>
+        [Fact]
+        public void SaveChanges_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenInsertingManyToManyChildAuditableRelations()
+        {
+            // Arrange
+            string serviceHistoryName = "Insert many-to-many child entities";
+
+            ICurrentUserProvider<long> currentUserSubstitute = Substitute.For<ICurrentUserProvider<long>>();
+            currentUserSubstitute.CurrentUserID.Returns(1);
+
+            ServiceCollection serviceCollection = new();
+            serviceCollection.AddSingleton(currentUserSubstitute);
+
+            IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
+
+            // Insert the auditable entity.
+            AuditableEntityFake entity = new();
+            EntityEntry<AuditableEntityFake> entityEntry = dbContext.Add(entity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the child auditable entity.
+            ChildAuditableEntityFake childEntity = new()
+            {
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
+            };
+            EntityEntry<ChildAuditableEntityFake> childEntityEntry = dbContext.Add(childEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the many to many child auditable entity.
+            ManyToManyChildAuditableEntityFake manyToManyChildEntity1 = new()
+            {
+                ChildAuditableEntities = [
+                    childEntity,
+                ],
+            };
+            EntityEntry<ManyToManyChildAuditableEntityFake> manyToManyChildEntityEntry1 = dbContext.Add(manyToManyChildEntity1);
+
+            ManyToManyChildAuditableEntityFake manyToManyChildEntity2 = new()
+            {
+                ChildAuditableEntities = [
+                    childEntity,
+                ],
+            };
+            EntityEntry<ManyToManyChildAuditableEntityFake> manyToManyChildEntityEntry2 = dbContext.Add(manyToManyChildEntity2);
+
+            dbContext.Add(new ServicesHistoryEntityFake() { Name = serviceHistoryName });
+
+            // Act
+            Action act = () =>
+            {
+                dbContext.SaveChanges();
+            };
+
+            // Assert
+            act.Should().NotThrow();
+
+            IQueryable<ServicesHistoryEntityFake> servicesHistory = dbContext.Set<ServicesHistoryEntityFake>().Where(x => x.Name == serviceHistoryName);
+            servicesHistory.Should().HaveCount(1);
+
+            ServicesHistoryEntityFake? serviceHistory = servicesHistory.FirstOrDefault();
+            serviceHistory.Should().NotBeNull();
+
+            IQueryable<OperationsHistoryEntityFake> operationsHistory = dbContext.Set<OperationsHistoryEntityFake>().Where(x => x.ServiceHistoryID == serviceHistory!.ID);
+            operationsHistory.Should().HaveCount(5);
+
+            operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
+        }
+
+        /// <summary>
+        /// Test the SaveChanges method should have added related operations history when inserting a child auditable relation.
+        /// </summary>
+        [Fact]
+        public void SaveChanges_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenInsertingRelatedChildAuditableRelations()
+        {
+            // Arrange
+            string serviceHistoryName = "Insert related child entities";
+
+            ICurrentUserProvider<long> currentUserSubstitute = Substitute.For<ICurrentUserProvider<long>>();
+            currentUserSubstitute.CurrentUserID.Returns(1);
+
+            ServiceCollection serviceCollection = new();
+            serviceCollection.AddSingleton(currentUserSubstitute);
+
+            IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
+
+            // Insert the auditable entity.
+            AuditableEntityFake entity = new();
+            EntityEntry<AuditableEntityFake> entityEntry = dbContext.Add(entity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the child auditable entity.
+            ChildAuditableEntityFake childEntity = new()
+            {
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
+            };
+            EntityEntry<ChildAuditableEntityFake> childEntityEntry = dbContext.Add(childEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the related child auditable entity.
+            RelatedChildAuditableEntityFake relatedChildEntity = new()
+            {
+                ChildAuditableEntity = childEntity,
+                ChildAuditableEntityID = childEntity.ID,
+            };
+            EntityEntry<RelatedChildAuditableEntityFake> relatedChildEntityEntry = dbContext.Add(relatedChildEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake() { Name = serviceHistoryName });
+
+            // Act
+            Action act = () =>
+            {
+                dbContext.SaveChanges();
+            };
+
+            // Assert
+            act.Should().NotThrow();
+
+            IQueryable<ServicesHistoryEntityFake> servicesHistory = dbContext.Set<ServicesHistoryEntityFake>().Where(x => x.Name == serviceHistoryName);
+            servicesHistory.Should().HaveCount(1);
+
+            ServicesHistoryEntityFake? serviceHistory = servicesHistory.FirstOrDefault();
+            serviceHistory.Should().NotBeNull();
+
+            IQueryable<OperationsHistoryEntityFake> operationsHistory = dbContext.Set<OperationsHistoryEntityFake>().Where(x => x.ServiceHistoryID == serviceHistory!.ID);
+            operationsHistory.Should().HaveCount(3);
 
             operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
         }
@@ -401,8 +695,8 @@ namespace ZDatabase.UnitTests
             // Insert the child auditable entity.
             ChildAuditableEntityFake childEntity = new()
             {
-                Parent = entity,
-                ParentID = entity.ID,
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
             };
             EntityEntry<ChildAuditableEntityFake> childEntityEntry = dbContext.Add(childEntity);
 
@@ -432,6 +726,161 @@ namespace ZDatabase.UnitTests
 
             IQueryable<OperationsHistoryEntityFake> operationsHistory = dbContext.Set<OperationsHistoryEntityFake>().Where(x => x.ServiceHistoryID == serviceHistory!.ID);
             operationsHistory.Should().HaveCount(2);
+
+            operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
+        }
+
+        /// <summary>
+        /// Test the SaveChanges method should have added many-to-many operations history when updating a child auditable relation.
+        /// </summary>
+        [Fact]
+        public void SaveChanges_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenUpdatingManyToManyChildAuditableRelations()
+        {
+            // Arrange
+            string serviceHistoryName = "Update many-to-many child entities";
+
+            ICurrentUserProvider<long> currentUserSubstitute = Substitute.For<ICurrentUserProvider<long>>();
+            currentUserSubstitute.CurrentUserID.Returns(1);
+
+            ServiceCollection serviceCollection = new();
+            serviceCollection.AddSingleton(currentUserSubstitute);
+
+            IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
+
+            // Insert the auditable entity.
+            AuditableEntityFake entity = new();
+            EntityEntry<AuditableEntityFake> entityEntry = dbContext.Add(entity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the child auditable entity.
+            ChildAuditableEntityFake childEntity = new()
+            {
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
+            };
+            EntityEntry<ChildAuditableEntityFake> childEntityEntry = dbContext.Add(childEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the many to many child auditable entity.
+            ManyToManyChildAuditableEntityFake manyToManyChildEntity1 = new()
+            {
+                ChildAuditableEntities = [
+                    childEntity,
+                ],
+            };
+            EntityEntry<ManyToManyChildAuditableEntityFake> manyToManyChildEntityEntry1 = dbContext.Add(manyToManyChildEntity1);
+
+            ManyToManyChildAuditableEntityFake manyToManyChildEntity2 = new()
+            {
+                ChildAuditableEntities = [
+                    childEntity,
+                ],
+            };
+            EntityEntry<ManyToManyChildAuditableEntityFake> manyToManyChildEntityEntry2 = dbContext.Add(manyToManyChildEntity2);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Update the child auditable entity.
+            manyToManyChildEntity2.DummyValue = Guid.NewGuid().ToString();
+            dbContext.Update(manyToManyChildEntity2);
+
+            dbContext.Add(new ServicesHistoryEntityFake() { Name = serviceHistoryName });
+
+            // Act
+            Action act = () =>
+            {
+                dbContext.SaveChanges();
+            };
+
+            // Assert
+            act.Should().NotThrow();
+
+            IQueryable<ServicesHistoryEntityFake> servicesHistory = dbContext.Set<ServicesHistoryEntityFake>().Where(x => x.Name == serviceHistoryName);
+            servicesHistory.Should().HaveCount(1);
+
+            ServicesHistoryEntityFake? serviceHistory = servicesHistory.FirstOrDefault();
+            serviceHistory.Should().NotBeNull();
+
+            IQueryable<OperationsHistoryEntityFake> operationsHistory = dbContext.Set<OperationsHistoryEntityFake>().Where(x => x.ServiceHistoryID == serviceHistory!.ID);
+            operationsHistory.Should().HaveCount(3);
+
+            operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
+        }
+
+        /// <summary>
+        /// Test the SaveChanges method should have added related operations history when updating a child auditable relation.
+        /// </summary>
+        [Fact]
+        public void SaveChanges_Pass_ShouldHaveAddedRelatedOperationsHistoryWhenUpdatingRelatedChildAuditableRelations()
+        {
+            // Arrange
+            string serviceHistoryName = "Update related child entities";
+
+            ICurrentUserProvider<long> currentUserSubstitute = Substitute.For<ICurrentUserProvider<long>>();
+            currentUserSubstitute.CurrentUserID.Returns(1);
+
+            ServiceCollection serviceCollection = new();
+            serviceCollection.AddSingleton(currentUserSubstitute);
+
+            IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
+
+            // Insert the auditable entity.
+            AuditableEntityFake entity = new();
+            EntityEntry<AuditableEntityFake> entityEntry = dbContext.Add(entity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the child auditable entity.
+            ChildAuditableEntityFake childEntity = new()
+            {
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
+            };
+            EntityEntry<ChildAuditableEntityFake> childEntityEntry = dbContext.Add(childEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Insert the related child auditable entity.
+            RelatedChildAuditableEntityFake relatedChildEntity = new()
+            {
+                ChildAuditableEntity = childEntity,
+                ChildAuditableEntityID = childEntity.ID,
+            };
+            EntityEntry<RelatedChildAuditableEntityFake> relatedChildEntityEntry = dbContext.Add(relatedChildEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Update the child auditable entity.
+            relatedChildEntity.DummyValue = Guid.NewGuid().ToString();
+            dbContext.Update(relatedChildEntity);
+
+            dbContext.Add(new ServicesHistoryEntityFake() { Name = serviceHistoryName });
+
+            // Act
+            Action act = () =>
+            {
+                dbContext.SaveChanges();
+            };
+
+            // Assert
+            act.Should().NotThrow();
+
+            IQueryable<ServicesHistoryEntityFake> servicesHistory = dbContext.Set<ServicesHistoryEntityFake>().Where(x => x.Name == serviceHistoryName);
+            servicesHistory.Should().HaveCount(1);
+
+            ServicesHistoryEntityFake? serviceHistory = servicesHistory.FirstOrDefault();
+            serviceHistory.Should().NotBeNull();
+
+            IQueryable<OperationsHistoryEntityFake> operationsHistory = dbContext.Set<OperationsHistoryEntityFake>().Where(x => x.ServiceHistoryID == serviceHistory!.ID);
+            operationsHistory.Should().HaveCount(3);
 
             operationsHistory.Any(x => x.EntityID == entity.ID).Should().BeTrue();
         }
@@ -786,8 +1235,8 @@ namespace ZDatabase.UnitTests
             // Insert the child auditable entity.
             ChildAuditableEntityFake childEntity = new()
             {
-                Parent = entity,
-                ParentID = entity.ID,
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
             };
             EntityEntry<ChildAuditableEntityFake> childEntityEntry = await dbContext.AddAsync(childEntity);
 
@@ -849,8 +1298,8 @@ namespace ZDatabase.UnitTests
             // Insert the child auditable entity.
             ChildAuditableEntityFake childEntity = new()
             {
-                Parent = entity,
-                ParentID = entity.ID,
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
             };
             EntityEntry<ChildAuditableEntityFake> childEntityEntry = dbContext.Add(childEntity);
 
@@ -905,8 +1354,8 @@ namespace ZDatabase.UnitTests
             // Insert the child auditable entity.
             ChildAuditableEntityFake childEntity = new()
             {
-                Parent = entity,
-                ParentID = entity.ID,
+                AuditableEntity = entity,
+                AuditableEntityID = entity.ID,
             };
             EntityEntry<ChildAuditableEntityFake> childEntityEntry = await dbContext.AddAsync(childEntity);
 

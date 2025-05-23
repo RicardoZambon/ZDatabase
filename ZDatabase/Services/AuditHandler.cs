@@ -199,8 +199,16 @@ namespace ZDatabase.Services
                         auditedRelatedEntries.Add(new AuditRelatedEntry(entry));
                     }
 
+                    // Direct relationships
                     auditedEntries.AddRange(
                         entry.GetRelatedEntriesToBeAudited()
+                        .Where(x => !auditedEntries.Any(a => a.Entry.Entity == x.Entity))
+                        .Select(x => new AuditEntry(x))
+                    );
+
+                    // Many-to-many relationships
+                    auditedEntries.AddRange(
+                        entry.GetManyToManyEntriesToBeAudited()
                         .Where(x => !auditedEntries.Any(a => a.Entry.Entity == x.Entity))
                         .Select(x => new AuditEntry(x))
                     );

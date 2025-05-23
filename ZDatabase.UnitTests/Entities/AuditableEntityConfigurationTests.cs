@@ -45,7 +45,7 @@ namespace ZDatabase.UnitTests.Entities
             IProperty? createdByIDProperty = dbContext.Model.FindEntityType(typeof(AuditableEntityFake))?.FindProperty(nameof(AuditableEntityFake.CreatedByID));
             createdByIDProperty.Should().NotBeNull();
             createdByIDProperty!.IsForeignKey().Should().BeTrue();
-            
+
             IForeignKey? foreignKey = createdByIDProperty.GetContainingForeignKeys().FirstOrDefault();
             foreignKey.Should().NotBeNull();
             foreignKey!.PrincipalEntityType.ClrType.Should().Be(typeof(UsersEntityFake));
@@ -151,7 +151,6 @@ namespace ZDatabase.UnitTests.Entities
             factory.Should().NotBeNull();
             factory!.Invoke(lastChangedByIDProperty, null!).GetType().Should().BeSameAs(typeof(CurrentUserGenerator<long>));
         }
-
 
         /// <summary>
         /// Test the class to have configured a query filter.
