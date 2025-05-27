@@ -1,9 +1,9 @@
 ﻿namespace ZDatabase.Exceptions
 {
     /// <summary>
-    /// Represents errors that occurs when the database context can not find any <see cref="ZDatabase.Entities.Audit.ServicesHistory{TUsers, TUsersKey}"/>.
+    /// Represents errors that occurs when the database context can not find any <see cref="Entities.Audit.ServicesHistory{TUsers, TUsersKey}"/>.
     /// </summary>
-    /// <seealso cref="System.Exception" />
+    /// <seealso cref="Exception" />
     public class MissingServiceHistoryException
         : Exception
     {
