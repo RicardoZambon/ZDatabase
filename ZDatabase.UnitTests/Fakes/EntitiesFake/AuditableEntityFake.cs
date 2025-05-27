@@ -9,7 +9,7 @@ namespace ZDatabase.UnitTests.Fakes.EntitiesFake
         public Guid RandomGuid { get; set; }
 
         [AuditableRelation]
-        public virtual ICollection<ChildAuditableEntityFake> Children { get; set; } = new List<ChildAuditableEntityFake>();
+        public virtual ICollection<ChildAuditableEntityFake> Children { get; set; } = [];
     }
 
     internal class AuditableEntityFakeConfiguration : AuditableEntityConfiguration<AuditableEntityFake, UsersEntityFake, long>

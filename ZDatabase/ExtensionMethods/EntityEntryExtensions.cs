@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Collections;
 using ZDatabase.Attributes;
 using ZDatabase.Entities;
 using ZDatabase.Entities.Audit;
@@ -11,14 +12,58 @@ namespace ZDatabase.ExtensionMethods
     /// </summary>
     public static class EntityEntryExtensions
     {
+        internal static IEnumerable<EntityEntry> GetManyToManyEntriesToBeAudited(this EntityEntry entry)
+        {
+            IEnumerable<IEnumerable?> relatedManyToManyEntries =
+                entry.Metadata.GetReferencingForeignKeys()
+                .SelectMany(x => x.GetReferencingSkipNavigations())
+                .Where(x =>
+                    (x.PropertyInfo?.CustomAttributes?.Any(a => a.AttributeType == typeof(AuditableRelationAttribute)) ?? false)
+                    && x.TargetEntityType.ClrType.IsSubclassOf(typeof(AuditableEntityBase))
+                )
+                .Where(x => x.PropertyInfo != null && entry.Collection(x.PropertyInfo!.Name).CurrentValue != null)
+                .Select(x => entry.Collection(x.PropertyInfo!.Name).CurrentValue)
+            ;
+
+            // Retrieve related entries
+            List<EntityEntry> relatedEntries = [];
+            foreach (IEnumerable? relationships in relatedManyToManyEntries)
+            {
+                if (relationships is null)
+                {
+                    continue;
+                }
+
+                foreach (object related in relationships)
+                {
+                    if (related is null)
+                    {
+                        continue;
+                    }
+
+                    EntityEntry relatedEntry = entry.Context.Entry(related);
+                    if (relatedEntry is null)
+                    {
+                        continue;
+                    }
+
+                    relatedEntries.Add(relatedEntry);
+                    relatedEntries.AddRange(relatedEntry.GetRelatedEntriesToBeAudited(entry));
+                }
+            }
+
+            return relatedEntries;
+        }
+
         /// <summary>
         /// Gets the related entries to be audited.
         /// </summary>
         /// <param name="entry">The entry.</param>
+        /// <param name="originalEntry">The original entry.</param>"
         /// <returns></returns>
-        internal static IEnumerable<EntityEntry> GetRelatedEntriesToBeAudited(this EntityEntry entry)
+        internal static IEnumerable<EntityEntry> GetRelatedEntriesToBeAudited(this EntityEntry entry, EntityEntry? originalEntry = null)
         {
-            return entry.Metadata.GetDeclaredForeignKeys()
+            List<EntityEntry> relatedEntries = [.. entry.Metadata.GetDeclaredForeignKeys()
                 .Where(fk =>
                     fk.GetNavigation(false)?.PropertyInfo?.CustomAttributes?.Any(a => a.AttributeType == typeof(AuditableRelationAttribute)) ?? false
                     || (fk.GetReferencingSkipNavigations()
@@ -28,7 +73,19 @@ namespace ZDatabase.ExtensionMethods
                 .Where(x => entry.CurrentValues[x.Properties[0].Name] != null)
                 .Select(x =>
                     entry.Context.Entry(entry.Context.Find(x.PrincipalEntityType.ClrType, entry.CurrentValues[x.Properties[0].Name]) ?? new())
-                );
+                )
+                .Where(x => originalEntry is null || x != originalEntry)
+            ];
+
+            // Retrieve recursive related entries
+            List<EntityEntry> additionalEntries = [];
+            foreach (EntityEntry relatedEntry in relatedEntries)
+            {
+                additionalEntries.AddRange(relatedEntry.GetRelatedEntriesToBeAudited(originalEntry ?? entry));
+            }
+            relatedEntries.AddRange(additionalEntries);
+
+            return relatedEntries;
         }
 
         /// <summary>
@@ -121,6 +178,16 @@ namespace ZDatabase.ExtensionMethods
                     && entry.IsAuditable();
             }
             return false;
+        }
+
+        internal static bool IsEnumerableTypeSubclassOf(this Type enumerableType, Type type)
+        {
+            if (enumerableType is null || !typeof(IEnumerable<>).IsAssignableFrom(enumerableType))
+            {
+                return false;
+            }
+
+            return enumerableType.GetGenericArguments().FirstOrDefault()?.IsAssignableFrom(type) ?? false;
         }
     }
 }
