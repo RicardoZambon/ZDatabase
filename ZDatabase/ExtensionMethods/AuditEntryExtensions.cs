@@ -19,7 +19,7 @@ namespace ZDatabase.ExtensionMethods
             {
                 EntityState.Deleted => entry.Entry.Properties.ToDictionary(k => k.Metadata.Name, v => v.OriginalValue),
                 EntityState.Modified => entry.Entry.Properties.Where(x => x.HasValueModified()).ToDictionary(k => k.Metadata.Name, v => v.OriginalValue),
-                _ => new Dictionary<string, object?>(),
+                _ => [],
             };
         }
 
@@ -34,7 +34,7 @@ namespace ZDatabase.ExtensionMethods
             {
                 EntityState.Added => entry.Entry.Properties.ToDictionary(k => k.Metadata.Name, v => v.CurrentValue),
                 EntityState.Modified => entry.Entry.Properties.Where(x => x.HasValueModified()).ToDictionary(k => k.Metadata.Name, v => v.CurrentValue),
-                _ => new Dictionary<string, object?>(),
+                _ => [],
             };
         }
     }

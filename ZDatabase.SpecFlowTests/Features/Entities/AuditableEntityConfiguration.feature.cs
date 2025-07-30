@@ -149,20 +149,20 @@ namespace ZDatabase.SpecFlowTests.Features.Entities
             {
                 await this.ScenarioStartAsync();
 #line 5
-    await testRunner.GivenAsync("the model is built for AuditableFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'AuditableFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
-    await testRunner.ThenAsync("the property \'CreatedByID\' should have after save behavior Ignore", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("the property \'CreatedByID\' should have \'after\' save behavior Ignore", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 7
-    await testRunner.AndAsync("the property \'CreatedByID\' should be a foreign key to UsersFake with navigation \'" +
-                        "CreatedBy\' and delete behavior NoAction", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'CreatedByID\' should be a foreign key to \'UsersFake\' with navigation" +
+                        " \'CreatedBy\' and delete behavior NoAction", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 8
-    await testRunner.AndAsync("the property \'CreatedByID\' should have value generated on add", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'CreatedByID\' should have value generated OnAdd", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 9
-    await testRunner.AndAsync("the property \'CreatedByID\' should use the CurrentUserGenerator", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'CreatedByID\' should use the generator \'CurrentUserGenerator\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -190,23 +190,23 @@ namespace ZDatabase.SpecFlowTests.Features.Entities
             {
                 await this.ScenarioStartAsync();
 #line 12
-    await testRunner.GivenAsync("the model is built for AuditableFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'AuditableFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 13
-    await testRunner.ThenAsync("the property \'LastChangedByID\' should have after save behavior Save", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("the property \'LastChangedByID\' should have \'after\' save behavior Save", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 14
-    await testRunner.AndAsync("the property \'LastChangedByID\' should have before save behavior Save", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'LastChangedByID\' should have \'before\' save behavior Save", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 15
-    await testRunner.AndAsync("the property \'LastChangedByID\' should be a foreign key to UsersFake with navigati" +
-                        "on \'LastChangedBy\' and delete behavior NoAction", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'LastChangedByID\' should be a foreign key to \'UsersFake\' with naviga" +
+                        "tion \'LastChangedBy\' and delete behavior NoAction", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 16
-    await testRunner.AndAsync("the property \'LastChangedByID\' should have value generated on add or update", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'LastChangedByID\' should have value generated OnAddOrUpdate", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 17
-    await testRunner.AndAsync("the property \'LastChangedByID\' should use the CurrentUserGenerator", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'LastChangedByID\' should use the generator \'CurrentUserGenerator\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -231,7 +231,7 @@ namespace ZDatabase.SpecFlowTests.Features.Entities
             {
                 await this.ScenarioStartAsync();
 #line 20
-    await testRunner.GivenAsync("the model is built for EntityFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'EntityFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 21
     await testRunner.ThenAsync("the query filter should check the \'IsDeleted\' property", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");

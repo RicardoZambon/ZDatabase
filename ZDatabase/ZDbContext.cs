@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using ZDatabase.Interfaces;
 using ZDatabase.Services.Interfaces;
@@ -72,6 +73,7 @@ namespace ZDatabase
                 auditHandler.AddOperationEntitiesBeforeSaving();
             }
 
+            HandleSoftDeleteEntities();
             int result = base.SaveChanges(acceptAllChangesOnSuccess);
 
             auditHandler?.AddOperationEntitiesAfterSaved();
@@ -90,6 +92,7 @@ namespace ZDatabase
                 await auditHandler.AddOperationEntitiesBeforeSavingAsync();
             }
 
+            HandleSoftDeleteEntities();
             int result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
 
             if (auditHandler is not null)
@@ -102,6 +105,16 @@ namespace ZDatabase
         #endregion
 
         #region Private methods
+        private void HandleSoftDeleteEntities()
+        {
+            IEnumerable<EntityEntry> deletedEnties = [.. ChangeTracker.Entries().Where(e => e.Entity is ISoftDelete && e.State == EntityState.Deleted)];
+            foreach (EntityEntry entry in deletedEnties)
+            {
+                entry.State = EntityState.Modified;
+                ((ISoftDelete)entry.Entity).IsDeleted = true;
+                Update(entry.Entity);
+            }
+        }
         #endregion
     }
 }

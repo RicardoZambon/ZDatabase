@@ -70,8 +70,8 @@ namespace ZDatabase.SpecFlowTests.Support
         public void SeedRiskAssessments()
         {
             var json = File.ReadAllText("Fakes/SeedData/SeedData.RiskAssessmentsFake.json");
-            var risks = JsonSerializer.Deserialize<List<RiskAssessmentsFake>>(json)!;
-            _dbContext.Set<RiskAssessmentsFake>().AddRange(risks);
+            var risks = JsonSerializer.Deserialize<List<AssessmentsFake>>(json)!;
+            _dbContext.Set<AssessmentsFake>().AddRange(risks);
         }
     }
 }

@@ -9,6 +9,10 @@ namespace ZDatabase.SpecFlowTests.Fakes.Entities
 
         public long ProductID { get; set; }
 
+        public virtual PurchasesFake? Purchase { get; set; }
+
+        public long PurchaseID { get; set; }
+
         public int Quantity { get; set; }
 
         public decimal UnitPrice { get; set; }

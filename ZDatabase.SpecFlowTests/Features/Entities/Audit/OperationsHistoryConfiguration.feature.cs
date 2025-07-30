@@ -146,11 +146,11 @@ namespace ZDatabase.SpecFlowTests.Features.Entities.Audit
             {
                 await this.ScenarioStartAsync();
 #line 5
-    await testRunner.GivenAsync("the model is built for OperationsHistoryFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'OperationsHistoryFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
-    await testRunner.ThenAsync("the property \'ServiceHistoryID\' should be a foreign key to ServicesHistoryFake wi" +
-                        "th navigation \'ServiceHistory\' and delete behavior NoAction", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("the property \'ServiceHistoryID\' should be a foreign key to \'ServicesHistoryFake\' " +
+                        "with navigation \'ServiceHistory\' and delete behavior NoAction", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

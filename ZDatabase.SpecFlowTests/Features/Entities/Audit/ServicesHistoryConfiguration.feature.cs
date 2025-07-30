@@ -149,20 +149,20 @@ namespace ZDatabase.SpecFlowTests.Features.Entities.Audit
             {
                 await this.ScenarioStartAsync();
 #line 5
-    await testRunner.GivenAsync("the model is built for ServicesHistoryFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'ServicesHistoryFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
-    await testRunner.ThenAsync("the property \'ChangedByID\' should have after save behavior Ignore", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("the property \'ChangedByID\' should have \'after\' save behavior Ignore", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 7
-    await testRunner.AndAsync("the property \'ChangedByID\' should be a foreign key to UsersFake with navigation \'" +
-                        "ChangedBy\' and delete behavior NoAction", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'ChangedByID\' should be a foreign key to \'UsersFake\' with navigation" +
+                        " \'ChangedBy\' and delete behavior NoAction", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 8
-    await testRunner.AndAsync("the property \'ChangedByID\' should have value generated on add", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'ChangedByID\' should have value generated OnAdd", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 9
-    await testRunner.AndAsync("the property \'ChangedByID\' should use the \'CurrentUserGenerator\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'ChangedByID\' should use the generator \'CurrentUserGenerator\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

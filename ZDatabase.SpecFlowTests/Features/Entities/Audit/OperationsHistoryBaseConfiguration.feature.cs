@@ -154,10 +154,10 @@ namespace ZDatabase.SpecFlowTests.Features.Entities.Audit
             {
                 await this.ScenarioStartAsync();
 #line 5
-    await testRunner.GivenAsync("the model is built for OperationsHistoryFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'OperationsHistoryFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
-    await testRunner.ThenAsync(string.Format("the property \'{0}\' should have after save behavior Ignore", property), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync(string.Format("the property \'{0}\' should have \'after\' save behavior Ignore", property), ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

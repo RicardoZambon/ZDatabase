@@ -4,7 +4,7 @@ using ZDatabase.Entities;
 
 namespace ZDatabase.SpecFlowTests.Fakes.Entities
 {
-    internal class RiskAssessmentsFake : AuditableEntity<UsersFake, long>
+    internal class AssessmentsFake : AuditableEntity<UsersFake, long>
     {
         public string? Details { get; set; }
 
@@ -12,9 +12,9 @@ namespace ZDatabase.SpecFlowTests.Fakes.Entities
         public virtual ICollection<PurchasesFake> Purchases { get; set; } = [];
     }
 
-    internal class RiskAssessmentsFakeConfiguration : AuditableEntityConfiguration<RiskAssessmentsFake, UsersFake, long>
+    internal class AssessmentsFakeConfiguration : AuditableEntityConfiguration<AssessmentsFake, UsersFake, long>
     {
-        public override void Configure(EntityTypeBuilder<RiskAssessmentsFake> builder)
+        public override void Configure(EntityTypeBuilder<AssessmentsFake> builder)
         {
             base.Configure(builder);
         }

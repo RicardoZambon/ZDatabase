@@ -146,13 +146,13 @@ namespace ZDatabase.SpecFlowTests.Features.Entities
             {
                 await this.ScenarioStartAsync();
 #line 5
-    await testRunner.GivenAsync("the model is built for EntityFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'EntityFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
     await testRunner.ThenAsync("the property \'ID\' should be configured as key", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 7
-    await testRunner.AndAsync("the property \'ID\' should have value generated on add", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'ID\' should have value generated OnAdd", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -177,10 +177,10 @@ namespace ZDatabase.SpecFlowTests.Features.Entities
             {
                 await this.ScenarioStartAsync();
 #line 10
-    await testRunner.GivenAsync("the model is built for EntityFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'EntityFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 11
-    await testRunner.ThenAsync("the property \'IsDeleted\' should have default value false", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("the property \'IsDeleted\' should have default value \'false\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -205,7 +205,7 @@ namespace ZDatabase.SpecFlowTests.Features.Entities
             {
                 await this.ScenarioStartAsync();
 #line 14
-    await testRunner.GivenAsync("the model is built for EntityFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'EntityFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 15
     await testRunner.ThenAsync("the query filter should check the \'IsDeleted\' property", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");

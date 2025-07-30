@@ -6,6 +6,9 @@ namespace ZDatabase.SpecFlowTests.Fakes.Entities
 {
     internal class PurchasesFake : AuditableEntity<UsersFake, long>
     {
+        [AuditableRelation]
+        public virtual ICollection<AssessmentsFake> Assessments { get; set; } = [];
+
         public virtual ClientsFake? Client { get; set; }
 
         public long ClientID { get; set; }
@@ -13,8 +16,7 @@ namespace ZDatabase.SpecFlowTests.Fakes.Entities
         [AuditableRelation]
         public virtual ICollection<PurchasesItemsFake> Items { get; set; } = [];
 
-        [AuditableRelation]
-        public virtual ICollection<RiskAssessmentsFake> RiskAssessments { get; set; } = [];
+        public DateTime PurchaseDate { get; set; }
     }
 
     internal class PurchasesFakeConfiguration : AuditableEntityConfiguration<PurchasesFake, UsersFake, long>

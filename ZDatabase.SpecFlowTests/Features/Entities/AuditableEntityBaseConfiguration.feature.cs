@@ -146,16 +146,16 @@ namespace ZDatabase.SpecFlowTests.Features.Entities
             {
                 await this.ScenarioStartAsync();
 #line 5
-    await testRunner.GivenAsync("the model is built for AuditableFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'AuditableFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 6
-    await testRunner.ThenAsync("the property \'CreatedOn\' should have after save behavior Ignore", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("the property \'CreatedOn\' should have \'after\' save behavior Ignore", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 7
-    await testRunner.AndAsync("the property \'CreatedOn\' should have value generated on add", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'CreatedOn\' should have value generated OnAdd", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 8
-    await testRunner.AndAsync("the property \'CreatedOn\' should use the \'DateTimeUtcGenerator\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'CreatedOn\' should use the generator \'DateTimeUtcGenerator\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -183,19 +183,19 @@ namespace ZDatabase.SpecFlowTests.Features.Entities
             {
                 await this.ScenarioStartAsync();
 #line 11
-    await testRunner.GivenAsync("the model is built for AuditableFake", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("the model is built for \'AuditableFake\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 12
-    await testRunner.ThenAsync("the property \'LastChangedOn\' should have after save behavior Save", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("the property \'LastChangedOn\' should have \'after\' save behavior Save", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 13
-    await testRunner.AndAsync("the property \'LastChangedOn\' should have before save behavior Save", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'LastChangedOn\' should have \'before\' save behavior Save", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 14
-    await testRunner.AndAsync("the property \'LastChangedOn\' should have value generated on add or update", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'LastChangedOn\' should have value generated OnAddOrUpdate", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 15
-    await testRunner.AndAsync("the property \'LastChangedOn\' should use the \'DateTimeUtcGenerator\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+    await testRunner.AndAsync("the property \'LastChangedOn\' should use the generator \'DateTimeUtcGenerator\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

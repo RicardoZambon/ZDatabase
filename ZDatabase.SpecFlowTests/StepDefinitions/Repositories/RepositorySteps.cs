@@ -2,7 +2,6 @@ using FluentAssertions;
 using Reqnroll;
 using ZDatabase.Interfaces;
 using ZDatabase.Repositories.Audit;
-using ZDatabase.Repositories.Audit.Interfaces;
 using ZDatabase.SpecFlowTests.Factories;
 using ZDatabase.SpecFlowTests.Fakes.Entities;
 using ZDatabase.SpecFlowTests.Fakes.Entities.Audit;
@@ -11,10 +10,10 @@ namespace ZDatabase.SpecFlowTests.StepDefinitions.Repositories
 {
     [Binding]
     [Scope(Feature = "Operations History Repository")]
-    public class OperationsHistoryRepositorySteps
+    public class RepositorySteps
     {
         private IDbContext _dbContext;
-        private IOperationsHistoryRepository<ServicesHistoryFake, OperationsHistoryFake, UsersFake, long> _repository;
+        private OperationsHistoryRepository<ServicesHistoryFake, OperationsHistoryFake, UsersFake, long> _repository;
         private ServicesHistoryFake _serviceHistory;
         private AuditableFake _auditableEntity;
         private OperationsHistoryFake _operationHistory;

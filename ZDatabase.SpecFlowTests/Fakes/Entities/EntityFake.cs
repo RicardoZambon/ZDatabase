@@ -3,11 +3,12 @@ using ZDatabase.Entities;
 
 namespace ZDatabase.SpecFlowTests.Fakes.Entities
 {
-    internal class EntityFake : AuditableEntity<UsersFake, long>
+    internal class EntityFake : Entity
     {
+        public string? Display { get; set; }
     }
 
-    internal class EntityFakeConfiguration : AuditableEntityConfiguration<EntityFake, UsersFake, long>
+    internal class EntityFakeConfiguration : EntityConfiguration<EntityFake>
     {
         public override void Configure(EntityTypeBuilder<EntityFake> builder)
         {
