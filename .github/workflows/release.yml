@@ -4,23 +4,85 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+
 env:
   PROJECT_PATH: 'ZDatabase/ZDatabase.csproj'
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
-  NUGET_PUSH_URL: ${{ secrets.NUGET_PUSH_URL }}
-  NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
 
 jobs:
-  release:
-    name: Release
+  validate:
+    name: Build validation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build
+
+      - name: Pack (dry run)
+        run: dotnet pack ${{ env.PROJECT_PATH }} --configuration Release --include-symbols --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} -p:PackageVersion=0.0.0-validation
+
+      - name: Setup Node.js
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install release tooling
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          npm install --no-save \
+            semantic-release \
+            @semantic-release/commit-analyzer \
+            @semantic-release/release-notes-generator
+
+      - name: Semantic release dry run
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          SEMANTIC_RELEASE_VALIDATION: 'true'
+        run: npx --no-install semantic-release --dry-run --no-ci
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: validate
+    if: ${{ github.event_name != 'pull_request' }}
+    permissions:
+      contents: write
+      id-token: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
       - name: Semantic Release
         id: release
         uses: cycjimmy/semantic-release-action@v4
@@ -32,10 +94,17 @@ jobs:
             @semantic-release/git
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
+      - name: NuGet login (Trusted Publishing)
+        id: login
+        if: ${{ steps.release.outputs.new_release_version }}
+        uses: NuGet/login@v1
+        with:
+          user: ricardozambon
+
       - name: 'Pack & Publish project'
         if: ${{ steps.release.outputs.new_release_version }}
         run: |
           dotnet clean
           dotnet pack ${{ env.PROJECT_PATH }} --configuration Release --include-symbols --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} -p:PackageVersion=${{ steps.release.outputs.new_release_version }}
-          dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s ${{ env.NUGET_PUSH_URL }} --skip-duplicate
+          dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k "${{ steps.login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json --skip-duplicate
