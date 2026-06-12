@@ -34,6 +34,11 @@ jobs:
   version:
     name: Semantic release version
     runs-on: ubuntu-latest
+    # Even in dry-run mode, semantic-release verifies push access with
+    # "git push --dry-run" before analyzing anything, so the token must be
+    # allowed to push. Nothing is ever pushed by this job.
+    permissions:
+      contents: write
     outputs:
       new-release-published: ${{ steps.semantic.outputs.new_release_published }}
       new-release-version: ${{ steps.semantic.outputs.new_release_version }}
@@ -43,8 +48,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      # PRs from forks always get a read-only token, which would fail the push
+      # access check; skip the dry run there and let the build job fall back
+      # to the 0.0.0-validation version.
       - name: Semantic release (dry run)
         id: semantic
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
         uses: cycjimmy/semantic-release-action@v5
         with:
           dry_run: true
