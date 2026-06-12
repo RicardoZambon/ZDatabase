@@ -39,13 +39,13 @@ jobs:
       new-release-version: ${{ steps.semantic.outputs.new_release_version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Semantic release (dry run)
         id: semantic
-        uses: cycjimmy/semantic-release-action@v4
+        uses: cycjimmy/semantic-release-action@v5
         with:
           dry_run: true
           ci: false
@@ -69,10 +69,10 @@ jobs:
       PACKAGE_VERSION: ${{ needs.version.outputs.new-release-version || '0.0.0-validation' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -107,7 +107,7 @@ jobs:
           meziantou.validate-nuget-package ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg --excluded-rules IconMustBeSet
 
       - name: Upload package artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nuget-package
           path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*
@@ -156,13 +156,13 @@ jobs:
       PACKAGE_VERSION: ${{ needs.version.outputs.new-release-version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Semantic Release
         id: release
-        uses: cycjimmy/semantic-release-action@v4
+        uses: cycjimmy/semantic-release-action@v5
         with:
           extra_plugins: |
             @semantic-release/commit-analyzer
@@ -173,7 +173,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download package artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nuget-package
           path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
