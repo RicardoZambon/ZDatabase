@@ -4,11 +4,16 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Title>ZDatabase is a library that brings additional functionalities for Entity Framework.</Title>
+		<Title>ZDatabase</Title>
+		<Description>ZDatabase is a library that brings additional functionalities for Entity Framework.</Description>
 		<Authors>Ricardo Zambon</Authors>
 		<Company>ZambonSoft</Company>
 		<Version>1.0.0</Version>
-		<RepositoryUrl>https://github.com/RicardoZambon/ZDatabase.EntityFrameworkCore</RepositoryUrl>
+		<PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/RicardoZambon/ZDatabase</PackageProjectUrl>
+		<PackageTags>entity-framework;efcore;database;audit</PackageTags>
+		<RepositoryUrl>https://github.com/RicardoZambon/ZDatabase</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>

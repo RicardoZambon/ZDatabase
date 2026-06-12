@@ -19,61 +19,54 @@ permissions:
 env:
   PROJECT_PATH: 'ZDatabase/ZDatabase.csproj'
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
+  DOTNET_VERSION: 9.0.x
+
+# Cancel superseded PR runs, but never cancel a release in progress;
+# queueing runs on main also prevents two merges from racing the same version.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  validate:
-    name: Build validation
+  # Computes the next version with the same action and plugins as the publish
+  # job, in dry-run mode. Its outputs are the single source of truth for the
+  # version used by every job downstream.
+  version:
+    name: Semantic release version
     runs-on: ubuntu-latest
+    outputs:
+      new-release-published: ${{ steps.semantic.outputs.new_release_published }}
+      new-release-version: ${{ steps.semantic.outputs.new_release_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v4
+      - name: Semantic release (dry run)
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v4
         with:
-          dotnet-version: 9.0.x
-
-      - name: Build
-        run: dotnet build --configuration Release
-
-      - name: Test
-        run: dotnet test --configuration Release --no-build
-
-      - name: Pack (dry run)
-        run: dotnet pack ${{ env.PROJECT_PATH }} --configuration Release --include-symbols --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} -p:PackageVersion=0.0.0-validation
-
-      - name: Setup Node.js
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install release tooling
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          npm install --no-save \
-            semantic-release \
-            @semantic-release/commit-analyzer \
+          dry_run: true
+          ci: false
+          extra_plugins: |
+            @semantic-release/commit-analyzer
             @semantic-release/release-notes-generator
-
-      - name: Semantic release dry run
-        if: ${{ github.event_name == 'pull_request' }}
+            @semantic-release/github
+            @semantic-release/git
         env:
           SEMANTIC_RELEASE_VALIDATION: 'true'
-        run: npx --no-install semantic-release --dry-run --no-ci
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  release:
-    name: Release
+  # Builds, tests, packs with the predicted version, and validates the package
+  # against NuGet.org publishing rules. The produced package is uploaded as an
+  # artifact and is the exact file the publish job pushes.
+  build:
+    name: Build, test & pack
     runs-on: ubuntu-latest
-    needs: validate
-    if: ${{ github.event_name != 'pull_request' }}
-    permissions:
-      contents: write
-      id-token: write
-      issues: write
-      pull-requests: write
+    needs: version
+    env:
+      PACKAGE_VERSION: ${{ needs.version.outputs.new-release-version || '0.0.0-validation' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,7 +74,91 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: >-
+          dotnet build
+          --configuration Release
+          --no-restore
+          -p:Version=${{ env.PACKAGE_VERSION }}
+          -p:ContinuousIntegrationBuild=true
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build
+
+      - name: Pack
+        run: >-
+          dotnet pack ${{ env.PROJECT_PATH }}
+          --configuration Release
+          --no-build
+          --include-symbols
+          -p:SymbolPackageFormat=snupkg
+          -p:Version=${{ env.PACKAGE_VERSION }}
+          -p:ContinuousIntegrationBuild=true
+          --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+
+      - name: Validate NuGet package
+        run: |
+          dotnet tool update --global Meziantou.Framework.NuGetPackageValidation.Tool
+          meziantou.validate-nuget-package ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg --excluded-rules IconMustBeSet
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*
+          retention-days: 7
+          overwrite: true
+
+  # Proves the Trusted Publishing handshake works (policy active, NUGET_USER
+  # correct, push URL reachable) without publishing anything. The minted API
+  # key is never used and expires after 1 hour. Deliberately has no checkout,
+  # so no repository code runs in the job that holds the key.
+  nuget-auth:
+    name: NuGet authentication
+    runs-on: ubuntu-latest
+    needs: build
+    # PRs from forks receive neither OIDC tokens nor secrets; skip the check for them.
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    permissions:
+      id-token: write
+    steps:
+      - name: NuGet login (Trusted Publishing)
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Validate push endpoint
+        run: curl --fail --silent --show-error --location --output /dev/null "${{ secrets.NUGET_PUSH_URL }}"
+
+  # Creates the git tag and GitHub release, then publishes the package built
+  # and validated by the build job. Re-running just this job after a failed
+  # push is safe: the version comes from the version job, the package from the
+  # build artifact, and --skip-duplicate makes the push idempotent.
+  release:
+    name: Publish to NuGet.org
+    runs-on: ubuntu-latest
+    needs:
+      - version
+      - build
+      - nuget-auth
+    if: ${{ github.event_name != 'pull_request' && needs.version.outputs.new-release-published == 'true' }}
+    permissions:
+      contents: write
+      id-token: write
+      issues: write
+      pull-requests: write
+    env:
+      PACKAGE_VERSION: ${{ needs.version.outputs.new-release-version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Semantic Release
         id: release
@@ -95,16 +172,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Download package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+
+      # Guards the artifact promotion: the version semantic-release just
+      # released (or already released in a previous attempt of this run) must
+      # match the version the package was built with.
+      - name: Verify package matches the released version
+        run: |
+          if [ "${{ steps.release.outputs.new_release_published }}" = "true" ] && [ "${{ steps.release.outputs.new_release_version }}" != "${{ env.PACKAGE_VERSION }}" ]; then
+            echo "::error::Semantic release published version ${{ steps.release.outputs.new_release_version }}, but the validated package is ${{ env.PACKAGE_VERSION }}. Not publishing."
+            exit 1
+          fi
+          if [ "${{ steps.release.outputs.new_release_published }}" != "true" ] && ! git rev-parse -q --verify "refs/tags/v${{ env.PACKAGE_VERSION }}" > /dev/null; then
+            echo "::error::No release was created in this attempt and tag v${{ env.PACKAGE_VERSION }} does not exist."
+            exit 1
+          fi
+          if [ ! -f "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/ZDatabase.${{ env.PACKAGE_VERSION }}.nupkg" ]; then
+            echo "::error::Package ZDatabase.${{ env.PACKAGE_VERSION }}.nupkg not found in the build artifact."
+            exit 1
+          fi
+
       - name: NuGet login (Trusted Publishing)
         id: login
-        if: ${{ steps.release.outputs.new_release_version }}
         uses: NuGet/login@v1
         with:
-          user: ricardozambon
+          user: ${{ secrets.NUGET_USER }}
 
-      - name: 'Pack & Publish project'
-        if: ${{ steps.release.outputs.new_release_version }}
-        run: |
-          dotnet clean
-          dotnet pack ${{ env.PROJECT_PATH }} --configuration Release --include-symbols --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} -p:PackageVersion=${{ steps.release.outputs.new_release_version }}
-          dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k "${{ steps.login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: Publish package
+        run: >-
+          dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/ZDatabase.${{ env.PACKAGE_VERSION }}.nupkg"
+          --api-key "${{ steps.login.outputs.NUGET_API_KEY }}"
+          --source "${{ secrets.NUGET_PUSH_URL }}"
+          --skip-duplicate
