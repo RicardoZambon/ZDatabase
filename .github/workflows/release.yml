@@ -135,6 +135,27 @@ jobs:
       - name: Validate push endpoint
         run: curl --fail --silent --show-error --location --output /dev/null "${{ secrets.NUGET_PUSH_URL }}"
 
+  # Aggregated status for branch protection: the "Build validation" required
+  # check on main maps to this job, so the jobs above can be renamed or
+  # extended without touching the protection rule. Runs with always() because
+  # a skipped required check would otherwise count as passing.
+  build-validation:
+    name: Build validation
+    runs-on: ubuntu-latest
+    needs:
+      - version
+      - build
+      - nuget-auth
+    if: ${{ always() }}
+    steps:
+      - name: Evaluate results
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+            echo "::error::One or more validation jobs did not succeed."
+            exit 1
+          fi
+          echo "All validation jobs succeeded."
+
   # Creates the git tag and GitHub release, then publishes the package built
   # and validated by the build job. Re-running just this job after a failed
   # push is safe: the version comes from the version job, the package from the
