@@ -139,10 +139,10 @@ jobs:
       - name: NuGet login (Trusted Publishing)
         uses: NuGet/login@v1
         with:
-          user: ${{ secrets.NUGET_USER }}
+          user: ${{ vars.NUGET_USER }}
 
       - name: Validate push endpoint
-        run: curl --fail --silent --show-error --location --output /dev/null "${{ secrets.NUGET_PUSH_URL }}"
+        run: curl --fail --silent --show-error --location --output /dev/null "${{ vars.NUGET_PUSH_URL }}"
 
   # Aggregated status for branch protection: the "Build validation" required
   # check on main maps to this job, so the jobs above can be renamed or
@@ -230,11 +230,11 @@ jobs:
         id: login
         uses: NuGet/login@v1
         with:
-          user: ${{ secrets.NUGET_USER }}
+          user: ${{ vars.NUGET_USER }}
 
       - name: Publish package
         run: >-
           dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/ZDatabase.${{ env.PACKAGE_VERSION }}.nupkg"
           --api-key "${{ steps.login.outputs.NUGET_API_KEY }}"
-          --source "${{ secrets.NUGET_PUSH_URL }}"
+          --source "${{ vars.NUGET_PUSH_URL }}"
           --skip-duplicate
