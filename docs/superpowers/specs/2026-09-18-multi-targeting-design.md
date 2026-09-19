@@ -165,3 +165,58 @@ Each repo must reach this bar before being called done:
   multi-targeting requires
 - Refactoring library logic
 - Changing the Trusted Publishing release pipeline beyond the SDK version list
+
+---
+
+## Outcome (2026-09-19)
+
+Delivered across all three repos. Every figure below was observed, not estimated.
+
+| Repo | Branch | Tests | Line coverage | Build |
+| --- | --- | --- | --- | --- |
+| ZDatabase | `claude/dotnet-efcore-upgrade-compat-514ccd` | 143 x 3 TFMs | **100.0%** (439/439) | 0 warnings |
+| ZSecurity | `features/dotnet-multitargeting` | 69 x 3 TFMs | **100.0%** (71/71) | 0 warnings |
+| ZWebAPI | `features/unit-tests` | 258 x 3 TFMs | **99.6%** (563/565) | 1 pre-existing warning |
+
+ZSecurity and ZWebAPI had no test projects before this work.
+
+Each repo was verified end to end: build on all three TFMs, suite green on all three, `dotnet pack`
+producing `lib/net8.0` + `lib/net9.0` + `lib/net10.0` with correct per-TFM dependency groups.
+ZSecurity and ZWebAPI were built against locally packed upstream packages served from a scratch
+folder feed, via a `NuGet.config` that was deliberately not committed.
+
+### Deviation from plan
+
+Three third-party packages were checked for net8.0 support up front and all had it, so no
+dependency bumps were needed. One library change was made beyond the plan: ZDatabase's
+`EntityEntryExtensions.IsEnumerableTypeSubclassOf` was deleted. It was `internal` with no callers,
+and `typeof(IEnumerable<>).IsAssignableFrom(t)` is `false` for every closed type, so its guard
+always tripped and it could only ever return `false`. Removing provably unreachable code was
+preferred to writing a test blessing a broken no-op.
+
+### Tooling note
+
+The coverlet collector (`--collect:"XPlat Code Coverage"`) rewrites the library assembly in place,
+and Windows Application Control intermittently blocks the modified unsigned binary (`0x800711C7`),
+which surfaces as a silent 0% report rather than an error. Coverage figures above were taken with
+`dotnet-coverage`, which instruments through the CLR profiler instead.
+
+### Findings raised, not fixed
+
+Deliberately left for separate changes, since none belong in a multi-targeting PR:
+
+1. **ZSecurity `ActionTypes.OnlyAdmins` does not restrict to admins** (`SecurityHandler.cs:90`).
+   `actionsToCheck` is seeded with `actionName` before the attribute is read, so an admin-only
+   method also accepts the plain action permission. Security-relevant.
+2. **ZWebAPI unsigned integer filters use the signed readers**
+   (`SummaryParametersExtensions.cs:161/168/175`): `UInt16`/`UInt32`/`UInt64` fall back to
+   `GetInt16()`/`GetInt32()`/`GetInt64()`, so large values overflow and the boxed value has the
+   wrong CLR type.
+3. **ZWebAPI enums sent as JSON strings do not work** (`SummaryParametersExtensions.cs:187`).
+   `Type.GetTypeCode` returns the underlying code for an enum, so the `IsEnum` branch is
+   unreachable and `"Active"` lands in `case TypeCode.Int32` and throws.
+4. **AutoMapper 14.0.0 carries a high severity advisory** (NU1903, GHSA-rvv3-g6hj-g44x, DoS via
+   uncontrolled recursion). Patched only in 15.1.1+ / 16.1.1+, which crosses AutoMapper's v15
+   commercial licensing change — a business decision, not a technical one.
+5. **ZWebAPI's release workflow is still the old single-job style**, unlike the Trusted Publishing
+   pipeline ZDatabase and ZSecurity use, and has no pull-request validation trigger.
