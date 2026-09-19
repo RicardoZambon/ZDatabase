@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using ZDatabase.Entities;
 using ZDatabase.Interfaces;
 using ZDatabase.UnitTests.Factories;
+using ZDatabase.UnitTests.Helpers;
 using ZDatabase.UnitTests.Fakes.EntitiesFake;
 using ZDatabase.ValueGenerators;
 
@@ -165,7 +166,7 @@ namespace ZDatabase.UnitTests.Entities
             IDbContext dbContext = DbContextFakeFactory.Create();
 
             // Assert
-            queryFilter = dbContext.Model.FindEntityType(typeof(EntityFake))?.GetQueryFilter();
+            queryFilter = dbContext.Model.FindEntityType(typeof(EntityFake))?.GetSingleQueryFilter();
 
             queryFilter.Should().NotBeNull();
 

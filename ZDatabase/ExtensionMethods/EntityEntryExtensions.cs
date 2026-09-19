@@ -179,15 +179,5 @@ namespace ZDatabase.ExtensionMethods
             }
             return false;
         }
-
-        internal static bool IsEnumerableTypeSubclassOf(this Type enumerableType, Type type)
-        {
-            if (enumerableType is null || !typeof(IEnumerable<>).IsAssignableFrom(enumerableType))
-            {
-                return false;
-            }
-
-            return enumerableType.GetGenericArguments().FirstOrDefault()?.IsAssignableFrom(type) ?? false;
-        }
     }
 }

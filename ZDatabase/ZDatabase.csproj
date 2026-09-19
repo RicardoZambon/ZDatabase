@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Title>ZDatabase</Title>
@@ -25,9 +24,9 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="9.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="$(EFCoreVersion)" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(EFCoreVersion)" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="$(EFCoreVersion)" />
 	</ItemGroup>
 
 </Project>
