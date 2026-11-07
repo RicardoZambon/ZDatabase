@@ -21,3 +21,10 @@ The `net8.0` floor is 8.0.11 rather than 8.0.0 because EF Core 8.0.0 depends on 
 The `net9.0` and `net8.0` targets exist for compatibility with applications that have not yet
 moved to .NET 10. Both of those runtimes are at or near end of support, so new projects should
 target `net10.0`.
+
+## Exception reporting
+
+`ZDatabase.Services.Interfaces.IExceptionReporter` is the contract for sending exceptions, with their
+breadcrumbs, to an error tracker such as Sentry. It has no ASP.NET dependency, so a core library can
+implement it without referencing a web package. ZWebAPI's global exception handler resolves it from
+the request scope. Register the implementation as scoped.
