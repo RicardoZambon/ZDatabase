@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Transactions;
 using ZDatabase.Interfaces;
 using ZDatabase.Services.Interfaces;
 
@@ -62,7 +64,65 @@ namespace ZDatabase
         }
 
         /// <inheritdoc />
+        /// <remarks>
+        /// On a relational provider, the data and its audit rows are saved in one transaction, so a
+        /// failed audit save rolls the data back. This is skipped when the caller already has a
+        /// transaction (the save joins it), when automatic transactions are turned off, and when the
+        /// execution strategy retries on failure (wrap the whole unit of work in the strategy instead).
+        /// </remarks>
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            if (!ShouldWrapSaveInTransaction())
+            {
+                return SaveChangesWithAudit(acceptAllChangesOnSuccess);
+            }
+
+            using IDbContextTransaction transaction = Database.BeginTransaction();
+
+            int result = SaveChangesWithAudit(acceptAllChangesOnSuccess);
+
+            transaction.Commit();
+
+            return result;
+        }
+
+        /// <inheritdoc />
+        /// <remarks>
+        /// On a relational provider, the data and its audit rows are saved in one transaction, so a
+        /// failed audit save rolls the data back. This is skipped when the caller already has a
+        /// transaction (the save joins it), when automatic transactions are turned off, and when the
+        /// execution strategy retries on failure (wrap the whole unit of work in the strategy instead).
+        /// </remarks>
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            if (!ShouldWrapSaveInTransaction())
+            {
+                return await SaveChangesWithAuditAsync(acceptAllChangesOnSuccess, cancellationToken);
+            }
+
+            await using IDbContextTransaction transaction = await Database.BeginTransactionAsync(cancellationToken);
+
+            int result = await SaveChangesWithAuditAsync(acceptAllChangesOnSuccess, cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+
+            return result;
+        }
+        #endregion
+
+        #region Private methods
+        private bool ShouldWrapSaveInTransaction()
+        {
+            // The audit rows are written by a nested save; it joins the transaction opened here.
+            return Database.IsRelational()
+                && Database.CurrentTransaction is null
+                && Database.GetEnlistedTransaction() is null
+                && Transaction.Current is null
+                && Database.AutoTransactionBehavior != AutoTransactionBehavior.Never
+                && !Database.CreateExecutionStrategy().RetriesOnFailure;
+        }
+
+        private int SaveChangesWithAudit(bool acceptAllChangesOnSuccess)
         {
             IAuditHandler auditHandler = AuditHandler;
 
@@ -79,8 +139,7 @@ namespace ZDatabase
             return result;
         }
 
-        /// <inheritdoc />
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        private async Task<int> SaveChangesWithAuditAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken)
         {
             IAuditHandler auditHandler = AuditHandler;
 
@@ -99,9 +158,6 @@ namespace ZDatabase
 
             return result;
         }
-        #endregion
-
-        #region Private methods
         #endregion
     }
 }

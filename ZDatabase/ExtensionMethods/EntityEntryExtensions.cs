@@ -71,9 +71,10 @@ namespace ZDatabase.ExtensionMethods
                     && fk.PrincipalEntityType.ClrType.IsSubclassOf(typeof(AuditableEntityBase)))
                 )
                 .Where(x => entry.CurrentValues[x.Properties[0].Name] != null)
-                .Select(x =>
-                    entry.Context.Entry(entry.Context.Find(x.PrincipalEntityType.ClrType, entry.CurrentValues[x.Properties[0].Name]) ?? new())
-                )
+                .Select(x => entry.Context.Find(x.PrincipalEntityType.ClrType, entry.CurrentValues[x.Properties[0].Name]))
+                // A parent hidden by a query filter (for example, soft-deleted) is not found; skip it.
+                .OfType<object>()
+                .Select(x => entry.Context.Entry(x))
                 .Where(x => originalEntry is null || x != originalEntry)
             ];
 

@@ -1489,5 +1489,78 @@ namespace ZDatabase.UnitTests
 
             (await dbContext.Set<EntityFake>().FirstOrDefaultAsync()).Should().NotBeNull();
         }
+
+        /// <summary>
+        /// Test the SaveChanges method should save a child whose audited parent is hidden by the
+        /// soft-delete query filter, skipping the parent instead of failing.
+        /// </summary>
+        [Fact]
+        public void SaveChanges_Pass_ShouldSaveChildWhenAuditedParentIsSoftDeleted()
+        {
+            // Arrange
+            IDbContext dbContext = CreateContextWithSoftDeletedParent(out long childID);
+
+            ChildAuditableEntityFake child = dbContext.Set<ChildAuditableEntityFake>().First(x => x.ID == childID);
+            child.DummyValue = "Changed";
+            dbContext.Add(new ServicesHistoryEntityFake());
+
+            // Act
+            Action act = () => dbContext.SaveChanges();
+
+            // Assert
+            act.Should().NotThrow();
+        }
+
+        /// <summary>
+        /// Test the SaveChangesAsync method should save a child whose audited parent is hidden by the
+        /// soft-delete query filter, skipping the parent instead of failing.
+        /// </summary>
+        [Fact]
+        public async Task SaveChangesAsync_Pass_ShouldSaveChildWhenAuditedParentIsSoftDeleted()
+        {
+            // Arrange
+            IDbContext dbContext = CreateContextWithSoftDeletedParent(out long childID);
+
+            ChildAuditableEntityFake child = await dbContext.Set<ChildAuditableEntityFake>().FirstAsync(x => x.ID == childID);
+            child.DummyValue = "Changed";
+            dbContext.Add(new ServicesHistoryEntityFake());
+
+            // Act
+            Func<Task> act = async () => await dbContext.SaveChangesAsync();
+
+            // Assert
+            await act.Should().NotThrowAsync();
+        }
+
+        private static IDbContext CreateContextWithSoftDeletedParent(out long childID)
+        {
+            ICurrentUserProvider<long> currentUserSubstitute = Substitute.For<ICurrentUserProvider<long>>();
+            currentUserSubstitute.CurrentUserID.Returns(1);
+
+            ServiceCollection serviceCollection = new();
+            serviceCollection.AddSingleton(currentUserSubstitute);
+
+            IDbContext dbContext = DbContextFakeFactory.Create(serviceCollection);
+
+            AuditableEntityFake parent = new();
+            dbContext.Add(parent);
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            ChildAuditableEntityFake child = new() { AuditableEntity = parent, AuditableEntityID = parent.ID };
+            dbContext.Add(child);
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            parent.IsDeleted = true;
+            dbContext.Add(new ServicesHistoryEntityFake());
+            dbContext.SaveChanges();
+
+            // Forget everything, so the parent can only be found through the filtered query.
+            dbContext.ChangeTracker.Clear();
+
+            childID = child.ID;
+            return dbContext;
+        }
     }
 }
